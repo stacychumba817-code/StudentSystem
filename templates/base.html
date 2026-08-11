@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student System</title>
+    <!-- Custom CSS (instead of Bootstrap) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Navigation Bar (using custom classes) -->
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="brand">📚 Student<span>System</span></a>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>Home</a></li>
+            <li><a href="{{ url_for('add_student') }}" {% if request.endpoint == 'add_student' %}class="active"{% endif %}>Add Student</a></li>
+            <li><a href="{{ url_for('remove_student') }}" {% if request.endpoint == 'remove_student' %}class="active"{% endif %}>Remove</a></li>
+            <li><a href="{{ url_for('search_student') }}" {% if request.endpoint == 'search_student' %}class="active"{% endif %}>Search</a></li>
+            <li><a href="{{ url_for('add_marks') }}" {% if request.endpoint == 'add_marks' %}class="active"{% endif %}>Add Marks</a></li>
+            <li><a href="{{ url_for('gpa') }}" {% if request.endpoint == 'gpa' %}class="active"{% endif %}>GPA</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main container -->
+    <div class="container">
+        <!-- Flash messages (using custom alert classes) -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page content -->
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>
