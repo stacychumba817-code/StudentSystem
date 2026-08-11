@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Calculate GPA</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label for="reg_no" class="form-label">Registration Number</label>
+        <input type="text" class="form-control" id="reg_no" name="reg_no" required>
+    </div>
+    <button type="submit" class="btn btn-warning">Calculate GPA</button>
+</form>
+
+{% if result %}
+    <div class="alert alert-success mt-4">{{ result }}</div>
+{% endif %}
+{% endblock %}
