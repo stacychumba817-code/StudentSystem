@@ -1,0 +1,21 @@
+{
+    "SST/B/01-0203/2026": {
+        "name": "Kevin Kiprop",
+        "course": "Applied Mathematics with IT",
+        "marks": {
+            "MAT 102": 58.0,
+            "STA 142": 74.0,
+            "MMU 111": 82.0
+        }
+    },
+    "SST/B/01-03483/2026": {
+        "name": "Stacy Chumba",
+        "course": "Applied Statistics with IT",
+        "marks": {
+            "MAT 104": 78.0,
+            "STA142": 56.0,
+            "MAT 102": 67.0,
+            "MMU 111": 76.0
+        }
+    }
+}
