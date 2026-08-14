@@ -820,36 +820,19 @@ def student_download_all():
 def seed_initial_data():
     users = load_users()
     if not users:
-        admin_pw = "admin123"
-        lecturer_pw = secrets.token_urlsafe(12)
+        # Set to what you want!
+        default_admin_password = "admin123"
+        default_lecturer_password = "lecturer123"
 
-        create_user('admin', admin_pw, 'admin')
-        create_user('lecturer', lecturer_pw, 'lecturer')
+        create_user('admin', default_admin_password, 'admin')
+        create_user('lecturer', default_lecturer_password, 'lecturer')
 
         print("============================================================")
         print("🚀 FIRST TIME SETUP: Default users created!")
-        print(f"🔑 Admin User:     admin / Password: {admin_pw}")
-        print(f"🔑 Lecturer User:  lecturer / Password: {lecturer_pw}")
-        print("⚠️  IMPORTANT: Change these passwords immediately after logging in!")
+        print(f"🔑 Admin User:     admin / Password: {default_admin_password}")
+        print(f"🔑 Lecturer User:  lecturer / Password: {default_lecturer_password}")
         print("============================================================")
-
-    courses = load_courses()
-    if not courses:
-        system.add_course('CS101', 'Intro to Computer Science')
-        system.add_course('MATH101', 'Calculus I')
-        system.add_course('ENG101', 'English Composition')
-        print("Default courses added.")
-
-    if 'SSTB/01-0203/2026' not in system.students:
-        student_pw = secrets.token_urlsafe(8)
-        system.add_student('SSTB/01-0203/2026', 'Jane Doe', 'CS101', password=student_pw)
-        print("============================================================")
-        print(f"🎓 Demo student added!")
-        print(f"🧑‍🎓 Username: SSTB/01-0203/2026")
-        print(f"🔑 Password: {student_pw}")
-        print("============================================================")
-
-
+    # ... rest of your function ...
 # ---------- Run ----------
 if __name__ == '__main__':
     seed_initial_data()
