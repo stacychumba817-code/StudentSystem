@@ -832,8 +832,7 @@ def seed_initial_data():
         print(f"🔑 Admin User:     admin / Password: {default_admin_password}")
         print(f"🔑 Lecturer User:  lecturer / Password: {default_lecturer_password}")
         print("============================================================")
-    # ... rest of your function ...
+seed_initial_data()
 # ---------- Run ----------
 if __name__ == '__main__':
-    seed_initial_data()
     app.run(debug=True)
