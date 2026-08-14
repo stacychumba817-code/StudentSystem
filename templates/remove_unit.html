@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4" style="max-width: 500px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Remove Unit</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="code" class="form-label">Select Unit to Remove</label>
+                    <select class="form-select" id="code" name="code" required>
+                        <option value="">Choose a unit...</option>
+                        {% for code, data in units %}
+                            <option value="{{ code }}">{{ code }} - {{ data.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger">Remove Unit</button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

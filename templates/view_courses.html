@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Registered Courses{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Registered Courses</h2>
+    <div class="card p-3 mt-3">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Course Code</th>
+                    <th scope="col">Course Name</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ course[0] }}</td>
+                    <td>{{ course[1]['name'] }}</td>
+                    <td>
+                        <form action="{{ url_for('admin_remove_course') }}" method="POST" onsubmit="return confirm('Are you sure you want to remove course {{ course[0] }}?');">
+                            <input type="hidden" name="code" value="{{ course[0] }}">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No courses have been added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}

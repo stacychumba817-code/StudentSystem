@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Welcome -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">Admin Dashboard</h1>
+            <p class="text-muted">Welcome, {{ username }}! Use the navigation bar above to manage students, courses, and lecturers.</p>
+        </div>
+    </div>
+
+    <!-- Cards Row -->
+    <div class="row">
+        <!-- 1. Students Card -->
+        <div class="col-lg mb-4">
+            <div class="card h-100 text-center shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <i class="fas fa-user-graduate"></i> Students
+                    </h5>
+                    <p class="card-text display-6">{{ system.students|length }}</p>
+                    <p class="text-muted">registered</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{{ url_for('admin_add_student') }}" class="btn btn-primary">
+                            <i class="fas fa-user-plus"></i> Add Student
+                        </a>
+                        <a href="{{ url_for('admin_remove_student') }}" class="btn btn-danger">
+                            <i class="fas fa-user-minus"></i> Remove Student
+                        </a>
+                        <a href="{{ url_for('view_students') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list"></i> View Students
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Lecturers Card -->
+        <div class="col-lg mb-4">
+            <div class="card h-100 text-center shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <i class="fas fa-chalkboard-teacher"></i> Lecturers
+                    </h5>
+                    <p class="card-text display-6">{{ lecturer_count }}</p>
+                    <p class="text-muted">employed</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{{ url_for('admin_add_lecturer') }}" class="btn btn-success">
+                            <i class="fas fa-user-plus"></i> Add New Lecturer
+                        </a>
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#removeLecturerModal">
+                            <i class="fas fa-user-minus"></i> Remove Lecturer
+                        </button>
+                        <a href="{{ url_for('admin_view_lecturers') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-users"></i> View Lecturers
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Courses Card -->
+        <div class="col-lg mb-4">
+            <div class="card h-100 text-center shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <i class="fas fa-book"></i> Courses
+                    </h5>
+                    <p class="card-text display-6">{{ system.courses|length }}</p>
+                    <p class="text-muted">available</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{{ url_for('admin_add_course') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Course
+                        </a>
+                        <a href="{{ url_for('admin_remove_course') }}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Remove Course
+                        </a>
+                        <a href="{{ url_for('admin_view_courses') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list"></i> View Courses
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Units Card -->
+        <div class="col-lg mb-4">
+            <div class="card h-100 text-center shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <i class="fas fa-book-open"></i> Units
+                    </h5>
+                    <p class="card-text display-6">{{ system.units|length }}</p>
+                    <p class="text-muted">registered</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{{ url_for('admin_add_unit') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Unit
+                        </a>
+                        <a href="{{ url_for('admin_remove_unit') }}" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Remove Unit
+                        </a>
+                        <a href="{{ url_for('admin_view_units') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list"></i> View Units
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. All Results Card -->
+        <div class="col-lg mb-4">
+            <div class="card h-100 text-center shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">
+                        <i class="fas fa-file-alt"></i> All Results
+                    </h5>
+                    <p class="text-muted">Download as PDF or text</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{{ url_for('student_download_all') }}" class="btn btn-success">
+                            <i class="fas fa-file-pdf"></i> Download PDF
+                        </a>
+                        <a href="{{ url_for('student_download_all', format='text') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-file-alt"></i> Download Text
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- REMOVE LECTURER MODAL -->
+<div class="modal fade" id="removeLecturerModal" tabindex="-1" aria-labelledby="removeLecturerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeLecturerModalLabel">Select a Lecturer to Remove</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start">
+                {% if lecturers %}
+                    <div class="list-group">
+                        {% for lecturer in lecturers %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><strong>{{ lecturer.full_name }}</strong> ({{ lecturer.username }})</span>
+                                <form action="{{ url_for('admin_remove_lecturer', lecturer_username=lecturer.username) }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently remove {{ lecturer.full_name }}?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i> Remove
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No lecturers are currently available to remove.</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Registered Lecturers{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Registered Lecturers</h2>
+    <div class="card p-3 mt-3">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Full Name</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for lecturer in lecturers %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ lecturer.username }}</td>
+                    <td>{{ lecturer.full_name }}</td>
+                    <td>
+                        <form action="{{ url_for('admin_remove_lecturer', lecturer_username=lecturer.username) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove {{ lecturer.username }}?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}

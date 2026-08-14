@@ -1,5 +1,3 @@
-
-
 {% extends "base.html" %}
 
 {% block content %}
@@ -22,7 +20,9 @@
                                 <th>Reg No</th>
                                 <th>Name</th>
                                 <th>Course</th>
+                                <th>Marks</th>
                                 <th>GPA</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -31,9 +31,22 @@
                                 <td>{{ reg_no }}</td>
                                 <td>{{ data.name }}</td>
                                 <td>{{ data.course }}</td>
+                                <td>{{ data.marks|length }}</td>
                                 <td>
-                                    {# Calculate GPA using the system's method #}
-                                    {{ system.calculate_gpa(reg_no) }}
+                                    {% set gpa = system.calculate_gpa(reg_no) %}
+                                    <span class="badge
+                                        {% if gpa >= 3.5 %}bg-success
+                                        {% elif gpa >= 2.5 %}bg-warning
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ gpa }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('download_student', reg_no=reg_no) }}"
+                                       class="btn btn-sm btn-primary"
+                                       title="Download result">
+                                        ⬇️
+                                    </a>
                                 </td>
                             </tr>
                             {% endfor %}

@@ -1,11 +1,14 @@
 {% extends "base.html" %}
+{% block title %}Remove Student{% endblock %}
+
 {% block content %}
 <h2>Remove Student</h2>
 <form method="POST">
     <div class="mb-3">
         <label for="reg_no" class="form-label">Registration Number</label>
-        <input type="text" class="form-control" id="reg_no" name="reg_no" required>
+        <input type="text" class="form-control" id="reg_no" name="reg_no" required placeholder="Enter reg no to remove">
     </div>
     <button type="submit" class="btn btn-danger">Remove Student</button>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
 </form>
-{% endblock %}>
+{% endblock %}

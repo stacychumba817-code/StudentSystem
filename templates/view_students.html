@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Registered Students{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Registered Students</h2>
+    <p class="text-muted">Total: {{ students|length }}</p>
+
+    <div class="card p-3 mt-3">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Reg No</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Units</th>
+                        <th>GPA</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.reg_no }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.course }}</td>
+                        <td>{{ student.marks_count }}</td>
+                        <td>
+                            {% if student.gpa > 0 %}
+                                <span class="badge rounded-pill {% if student.gpa >= 3.5 %}bg-success{% elif student.gpa >= 2.5 %}bg-warning text-dark{% elif student.gpa >= 1.5 %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {{ student.gpa }}
+                                </span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-secondary">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <!-- Download GPA PDF -->
+                                <a href="{{ url_for('student_download', reg_no=student.reg_no) }}" class="btn btn-success btn-sm" title="Download Result PDF">
+                                    PDF
+                                </a>
+                                <!-- Download GPA Text -->
+                                <a href="{{ url_for('student_download', reg_no=student.reg_no, format='text') }}" class="btn btn-secondary btn-sm" title="Download Result Text">
+                                    TXT
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}

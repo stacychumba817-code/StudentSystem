@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Add Course{% endblock %}
+
+{% block content %}
+<h2>Add Course</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label for="code" class="form-label">Course Code</label>
+        <input type="text" class="form-control" id="code" name="code" required placeholder="e.g., CS101">
+        <div class="form-text">Uppercase letters, numbers, hyphens only (e.g., CS101, MATH-101).</div>
+    </div>
+    <div class="mb-3">
+        <label for="name" class="form-label">Course Name</label>
+        <input type="text" class="form-control" id="name" name="name" required placeholder="e.g., Introduction to CS">
+    </div>
+    <button type="submit" class="btn btn-primary">Add Course</button>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

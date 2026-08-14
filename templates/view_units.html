@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Registered Units{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Registered Units</h2>
+    <div class="card p-3 mt-3">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Unit Code</th>
+                    <th scope="col">Unit Name</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unit in units %}
+                <tr>
+                    <th scope="row">{{ loop.index }}</th>
+                    <td>{{ unit[0] }}</td>
+                    <td>{{ unit[1]['name'] }}</td>
+                    <td>
+                        <form action="{{ url_for('admin_remove_unit') }}" method="POST" onsubmit="return confirm('Are you sure you want to remove unit {{ unit[0] }}?');">
+                            <input type="hidden" name="code" value="{{ unit[0] }}">
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No units have been added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %}

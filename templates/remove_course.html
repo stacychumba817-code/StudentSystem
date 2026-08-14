@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Remove Course{% endblock %}
+
+{% block content %}
+<h2>Remove Course</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label for="code" class="form-label">Course Code</label>
+        <select class="form-select" id="code" name="code" required>
+            <option value="">Select a course</option>
+            {% for code, info in courses %}
+                <option value="{{ code }}">{{ code }} – {{ info.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-danger">Remove Course</button>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

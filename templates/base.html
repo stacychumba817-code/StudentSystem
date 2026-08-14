@@ -1,42 +1,52 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student System</title>
-    <!-- Custom CSS (instead of Bootstrap) -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Academic Portal – {% block title %}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding-top: 70px; }
+        .flash-messages { margin-top: 20px; }
+        .table-actions .btn { margin: 0 2px; }
+    </style>
 </head>
 <body>
 
-    <!-- Navigation Bar (using custom classes) -->
-    <nav class="navbar">
-        <a href="{{ url_for('index') }}" class="brand">📚 Student<span>System</span></a>
-        <ul class="nav-links">
-            <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>Home</a></li>
-            <li><a href="{{ url_for('add_student') }}" {% if request.endpoint == 'add_student' %}class="active"{% endif %}>Add Student</a></li>
-            <li><a href="{{ url_for('remove_student') }}" {% if request.endpoint == 'remove_student' %}class="active"{% endif %}>Remove</a></li>
-            <li><a href="{{ url_for('search_student') }}" {% if request.endpoint == 'search_student' %}class="active"{% endif %}>Search</a></li>
-            <li><a href="{{ url_for('add_marks') }}" {% if request.endpoint == 'add_marks' %}class="active"{% endif %}>Add Marks</a></li>
-            <li><a href="{{ url_for('gpa') }}" {% if request.endpoint == 'gpa' %}class="active"{% endif %}>GPA</a></li>
-        </ul>
-    </nav>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ url_for('dashboard') }}">📘 Academic Portal</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- ALL EXTRA LINKS HAVE BEEN REMOVED FROM HERE -->
 
-    <!-- Main container -->
-    <div class="container">
-        <!-- Flash messages (using custom alert classes) -->
+            <!-- Right side: Username and Logout -->
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><span class="navbar-text me-3">👤 {{ username }}</span></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">🚪 Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
-
-        <!-- Page content -->
-        {% block content %}{% endblock %}
     </div>
+    {% block content %}{% endblock %}
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

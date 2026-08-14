@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Lecturer{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Add New Lecturer</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <!-- Full Name Input -->
+                        <div class="mb-3">
+                            <label for="full_name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name"
+                                   maxlength="20" pattern="[A-Za-z\s]+"
+                                   title="Only letters and spaces allowed (max 20 characters)"
+                                   placeholder="e.g. John Doe" required>
+                            <div class="form-text text-muted">Username will be automatically created from this name (e.g., John Doe becomes <strong>johndoe</strong>).</div>
+                        </div>
+
+                        <!-- Password Input -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password"
+                                   placeholder="Enter password" required>
+                            <div class="form-text text-muted">Password must be at least 4 characters long.</div>
+                        </div>
+
+                        <!-- Only ONE Add Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">Add Lecturer</button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

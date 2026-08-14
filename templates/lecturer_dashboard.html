@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Lecturer Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">Lecturer Dashboard</h1>
+            <p class="text-muted">Welcome, {{ username }}!</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <!-- Existing Buttons -->
+                        <a href="{{ url_for('lecturer_add_marks') }}" class="btn btn-primary">
+                            <i class="fas fa-pen"></i> Add Marks
+                        </a>
+                        <a href="{{ url_for('student_view_gpa') }}" class="btn btn-info text-white">
+                            <i class="fas fa-graduation-cap"></i> View GPA
+                        </a>
+                        <a href="{{ url_for('view_students') }}" class="btn btn-secondary">
+                            <i class="fas fa-users"></i> View Students
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

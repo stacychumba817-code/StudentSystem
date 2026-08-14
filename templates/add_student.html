@@ -1,19 +1,33 @@
+
 {% extends "base.html" %}
+{% block title %}Add Student{% endblock %}
+
 {% block content %}
 <h2>Add Student</h2>
 <form method="POST">
     <div class="mb-3">
         <label for="reg_no" class="form-label">Registration Number</label>
-        <input type="text" class="form-control" id="reg_no" name="reg_no" required>
+        <input type="text" class="form-control" id="reg_no" name="reg_no" required placeholder="e.g., SSTB/01-0203/2026">
+        <div class="form-text">Use letters, numbers, / - _ . only.</div>
     </div>
     <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
+        <label for="name" class="form-label">Full Name</label>
         <input type="text" class="form-control" id="name" name="name" required>
     </div>
     <div class="mb-3">
         <label for="course" class="form-label">Course</label>
-        <input type="text" class="form-control" id="course" name="course" required>
+        <select class="form-select" id="course" name="course" required>
+            <option value="">Select a course</option>
+            {% for code, info in courses %}
+                <option value="{{ code }}">{{ code }} – {{ info.name }}</option>
+            {% endfor %}
+        </select>
+    <div class="mb-3">
+    <label for="password" class="form-label">Set Student Password</label>
+    <input type="text" class="form-control" id="password" name="password" required placeholder="Enter a unique password">
+    </div>
     </div>
     <button type="submit" class="btn btn-primary">Add Student</button>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
 </form>
 {% endblock %}
