@@ -828,7 +828,7 @@ def seed_initial_data():
 
         print("============================================================")
         print("🚀 FIRST TIME SETUP: Default users created!")
-        print(f"🔑 Admin User:     admin / Password: {admin_pw}")
+        print(f"🔑 Admin User:     admin / Password: admin123")
         print(f"🔑 Lecturer User:  lecturer / Password: {lecturer_pw}")
         print("⚠️  IMPORTANT: Change these passwords immediately after logging in!")
         print("============================================================")
