@@ -589,29 +589,29 @@ def admin_view_courses():
     courses = system.get_course_list()
     return render_template('view_courses.html', courses=courses)
 
-@app.route('/admin/reset_password/<path:reg_no>', methods=['GET', 'POST'])
-@role_required(['admin'])
-def admin_reset_password(reg_no):
-    if reg_no not in system.students:
-        flash('Student not found.', 'danger')
-        return redirect(url_for('view_students'))
 
+@app.route('/admin/change_password', methods=['GET', 'POST'])
+@role_required(['admin'])  # Only logged-in admins can access this
+def admin_change_password():
     if request.method == 'POST':
         new_password = request.form.get('new_password', '').strip()
+
         if not new_password or len(new_password) < 4:
             flash('Password must be at least 4 characters.', 'danger')
         else:
+            username = session['username']  # Get the currently logged-in admin's username
             users = load_users()
-            if reg_no in users:
-                users[reg_no]['password_hash'] = generate_password_hash(new_password)
+
+            if username in users:
+                users[username]['password_hash'] = generate_password_hash(new_password)
                 save_users(users)
-                flash(f'Password for {reg_no} has been reset to: {new_password}', 'success')
+                flash(f'Your password has been changed successfully!', 'success')
             else:
-                flash('User account not found for this student.', 'danger')
-            return redirect(url_for('view_students'))
+                flash('User not found.', 'danger')
 
-    return render_template('reset_password.html', reg_no=reg_no)
+        return redirect(url_for('dashboard'))
 
+    return render_template('admin_change_password.html')
 
 @app.route('/admin/lecturers/add', methods=['GET', 'POST'])
 @role_required(['admin'])
@@ -832,6 +832,7 @@ def seed_initial_data():
         print(f"🔑 Admin User:     admin / Password: {default_admin_password}")
         print(f"🔑 Lecturer User:  lecturer / Password: {default_lecturer_password}")
         print("============================================================")
+
 seed_initial_data()
 # ---------- Run ----------
 if __name__ == '__main__':
