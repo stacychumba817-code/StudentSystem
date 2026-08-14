@@ -820,7 +820,7 @@ def student_download_all():
 def seed_initial_data():
     users = load_users()
     if not users:
-        admin_pw = secrets.token_urlsafe(12)
+        admin_pw = "admin123"
         lecturer_pw = secrets.token_urlsafe(12)
 
         create_user('admin', admin_pw, 'admin')
@@ -828,7 +828,7 @@ def seed_initial_data():
 
         print("============================================================")
         print("🚀 FIRST TIME SETUP: Default users created!")
-        print(f"🔑 Admin User:     admin / Password: admin123")
+        print(f"🔑 Admin User:     admin / Password: {admin_pw}")
         print(f"🔑 Lecturer User:  lecturer / Password: {lecturer_pw}")
         print("⚠️  IMPORTANT: Change these passwords immediately after logging in!")
         print("============================================================")
