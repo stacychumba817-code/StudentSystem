@@ -4,32 +4,178 @@
 
 {% block content %}
 <div class="container mt-4">
+    <!-- Welcome -->
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="display-5">Lecturer Dashboard</h1>
-            <p class="text-muted">Welcome, {{ username }}!</p>
+            <p class="text-muted">Welcome, {{ username }}! Manage student marks and view your courses below.</p>
         </div>
     </div>
 
+    <!-- Cards Row -->
     <div class="row">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0">Quick Actions</h5>
+        <!-- Add Marks Card -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-pen"></i> Add Marks
+                    </h5>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex flex-wrap gap-2">
-                        <!-- Existing Buttons -->
-                        <a href="{{ url_for('lecturer_add_marks') }}" class="btn btn-primary">
-                            <i class="fas fa-pen"></i> Add Marks
-                        </a>
-                        <a href="{{ url_for('student_view_gpa') }}" class="btn btn-info text-white">
-                            <i class="fas fa-graduation-cap"></i> View GPA
-                        </a>
-                        <a href="{{ url_for('view_students') }}" class="btn btn-secondary">
-                            <i class="fas fa-users"></i> View Students
-                        </a>
+                    <form method="POST" action="{{ url_for('lecturer_add_marks') }}">
+                        <!-- Student Selection -->
+                        <div class="mb-3">
+                            <label for="student_id" class="form-label fw-bold">
+                                <i class="fas fa-user-graduate"></i> Select Student
+                            </label>
+                            <select class="form-select" id="student_id" name="student_id" required>
+                                <option value="">-- Choose a student --</option>
+                                {% for student in students %}
+                                <option value="{{ student.id }}">{{ student.name }} ({{ student.id }})</option>
+                                {% endfor %}
+                            </select>
+                            {% if students|length == 0 %}
+                            <div class="text-muted small mt-1">No students available</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Unit Selection -->
+                        <div class="mb-3">
+                            <label for="unit_id" class="form-label fw-bold">
+                                <i class="fas fa-layer-group"></i> Select Unit
+                            </label>
+                            <select class="form-select" id="unit_id" name="unit_id" required>
+                                <option value="">-- Choose a unit --</option>
+                                {% for unit in units %}
+                                <option value="{{ unit.id }}">{{ unit.name }} ({{ unit.code }})</option>
+                                {% endfor %}
+                            </select>
+                            {% if units|length == 0 %}
+                            <div class="text-muted small mt-1">No units available</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Marks Input -->
+                        <div class="mb-3">
+                            <label for="marks" class="form-label fw-bold">
+                                <i class="fas fa-percent"></i> Marks (%)
+                            </label>
+                            <input type="number" class="form-control" id="marks" name="marks"
+                                   placeholder="Enter marks (0-100)" min="0" max="100" step="0.1" required>
+                            <div class="form-text">Enter a value between 0 and 100</div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-save"></i> Submit Marks
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Card -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-simple"></i> Quick Stats
+                    </h5>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="border rounded p-3 bg-light">
+                                <h3 class="display-6">{{ students|length }}</h3>
+                                <p class="text-muted mb-0">Total Students</p>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="border rounded p-3 bg-light">
+                                <h3 class="display-6">{{ units|length }}</h3>
+                                <p class="text-muted mb-0">Total Units</p>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="border rounded p-3 bg-light">
+                                <h3 class="display-6">{{ courses|length }}</h3>
+                                <p class="text-muted mb-0">My Courses</p>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="border rounded p-3 bg-light">
+                                <h3 class="display-6">{{ marks_submitted|default(0) }}</h3>
+                                <p class="text-muted mb-0">Marks Submitted</p>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Recent Activity / Quick Links -->
+                    <div class="mt-auto">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('lecturer_view_marks') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-eye"></i> View All Marks
+                            </a>
+                            <a href="{{ url_for('lecturer_manage_courses') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-book"></i> Manage Courses
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Marks Table (Optional) -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock"></i> Recent Marks
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_marks %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Unit</th>
+                                    <th>Marks (%)</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mark in recent_marks %}
+                                <tr>
+                                    <td>{{ mark.student_name }}</td>
+                                    <td>{{ mark.unit_name }}</td>
+                                    <td>
+                                        <span class="badge {% if mark.marks >= 70 %}bg-success{% elif mark.marks >= 50 %}bg-warning{% else %}bg-danger{% endif %}">
+                                            {{ mark.marks }}%
+                                        </span>
+                                    </td>
+                                    <td>{{ mark.date_submitted }}</td>
+                                    <td>
+                                        <a href="{{ url_for('lecturer_edit_mark', mark_id=mark.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <p>No marks submitted yet. Use the form above to add marks.</p>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
