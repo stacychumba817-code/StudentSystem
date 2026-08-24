@@ -1,26 +1,30 @@
 {% extends "base.html" %}
+{% block title %}Add Unit{% endblock %}
+
 {% block content %}
-<div class="container mt-4" style="max-width: 500px;">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Add New Unit</h4>
-        </div>
-        <div class="card-body">
-            <form method="POST">
-                <div class="mb-3">
-                    <label for="code" class="form-label">Unit Code</label>
-                    <input type="text" class="form-control" id="code" name="code" required placeholder="e.g., CS101">
-                </div>
-                <div class="mb-3">
-                    <label for="name" class="form-label">Unit Name</label>
-                    <input type="text" class="form-control" id="name" name="name" required placeholder="e.g., Introduction to Programming">
-                </div>
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">Add Unit</button>
-                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
-        </div>
+<h2>Add Unit</h2>
+
+<!-- Display flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" action="{{ url_for('admin_add_unit') }}">
+    <div class="mb-3">
+        <label for="unit_code" class="form-label">Unit Code</label>
+        <input type="text" class="form-control" id="unit_code" name="unit_code" required placeholder="e.g., BIT112">
+        <div class="form-text">Uppercase letters, numbers, hyphens, underscores only (e.g., BIT112, MATH-101).</div>
     </div>
-</div>
+    <div class="mb-3">
+        <label for="unit_name" class="form-label">Unit Name</label>
+        <input type="text" class="form-control" id="unit_name" name="unit_name" required placeholder="e.g., Introduction to Programming">
+        <div class="form-text">Maximum 20 characters.</div>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Unit</button>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+</form>
 {% endblock %}
