@@ -54,8 +54,8 @@ def validate_course_code(code):
         return False, "Course code is required."
     if len(code) > 20:
         return False, "Course code too long (max 20 characters)."
-    if not re.match(r'^[A-Za-z0-9\-_]+$', code):
-        return False, "Course code can only contain letters, numbers, hyphens, underscores."
+    if not re.match(r'^[A-Z0-9\-]+$', code):  # FIXED: Only uppercase, numbers, hyphens
+        return False, "Course code can only contain uppercase letters, numbers, and hyphens."
     return True, ""
 
 
@@ -74,7 +74,8 @@ def validate_course_name(name):
         return False, "Course name is required."
     if len(name) > 30:
         return False, "Course name too long (max 30 characters)."
-    if not re.match(r'^[A-Za-z\s\-_]+$', name):
+    # FIXED: Allow spaces, hyphens, underscores, and apostrophes for course names
+    if not re.match(r'^[A-Za-z\s\-_\'\.]+$', name):
         return False, "Course name contains invalid characters."
     return True, ""
 
@@ -696,6 +697,7 @@ def admin_add_unit():
 
     return render_template('add_unit.html')
 
+
 @app.route('/admin/units/remove', methods=['GET', 'POST'])
 @role_required(['admin'])
 def admin_remove_unit():
@@ -718,43 +720,54 @@ def admin_view_units():
     return render_template('view_units.html', units=units)
 
 
+# ---------- FIXED: Admin Add Course Route ----------
 @app.route('/admin/courses/add', methods=['GET', 'POST'])
 @role_required(['admin'])
 def admin_add_course():
     if request.method == 'POST':
-        course_code = request.form.get('course_code', '').strip().upper()
-        course_name = request.form.get('course_name', '').strip()
+        course_code = request.form.get('code', '').strip().upper()  # FIXED: Changed from 'course_code' to 'code'
+        course_name = request.form.get('name', '').strip()  # FIXED: Changed from 'course_name' to 'name'
 
         # --- VALIDATION CHECKS ---
 
         # 1. Check if fields are empty
         if not course_code or not course_name:
             flash('Please fill in all fields.', 'danger')
+            return render_template('add_course.html')  # FIXED: Return to form instead of redirect
 
         # 2. NEW CHECK: Reject pure numbers for Course Code
         elif course_code.isdigit():
             flash('Invalid Course Code. It cannot consist of numbers only (e.g., use "CS101" instead of "1111").',
                   'danger')
+            return render_template('add_course.html')  # FIXED: Return to form instead of redirect
 
-        # 3. NEW CHECK: Limit Course Name to 20 characters
-        elif len(course_name) > 20:
-            flash('Course Name must be 20 characters or less.', 'danger')
+        # 3. NEW CHECK: Limit Course Name to 30 characters
+        elif len(course_name) > 30:
+            flash('Course Name must be 30 characters or less.', 'danger')
+            return render_template('add_course.html')  # FIXED: Return to form instead of redirect
 
         # 4. Check if Course Code already exists
         elif course_code in system.courses:
             flash(f'Course "{course_code}" already exists.', 'danger')
+            return render_template('add_course.html')  # FIXED: Return to form instead of redirect
+
+        # 5. Validate course code format (uppercase, numbers, hyphens only)
+        elif not re.match(r'^[A-Z0-9\-]+$', course_code):
+            flash('Course code must contain only uppercase letters, numbers, and hyphens.', 'danger')
+            return render_template('add_course.html')  # FIXED: Return to form instead of redirect
 
         # --- IF ALL CHECKS PASS ---
         else:
             system.courses[course_code] = {
-                'name': course_name,
-                'units': {}
+                'name': course_name
             }
             system.save_courses()
-            flash(f'Course "{course_code}" added.', 'success')
+            flash(f'Course "{course_code}" added successfully!', 'success')
             return redirect(url_for('admin_add_course'))
 
+    # GET request - show the form
     return render_template('add_course.html')
+
 
 @app.route('/admin/courses/remove', methods=['GET', 'POST'])
 @role_required(['admin'])
@@ -792,7 +805,7 @@ def admin_change_password():
             users = load_users()
             if username in users and users[username].get('role') == role:
                 # Update the password
-                users[username]['password'] = new_password
+                users[username]['password_hash'] = generate_password_hash(new_password)  # FIXED: Hash the password
                 save_users(users)
                 flash(f'Password for {role} "{username}" updated successfully!', 'success')
                 return redirect(url_for('admin_change_password'))
@@ -941,12 +954,13 @@ def lecturer_add_marks():
             flash(msg, 'success' if success else 'danger')
         return redirect(url_for('lecturer_add_marks'))
 
+    # FIX: Added system=system to the render_template call
     return render_template('lecturer_dashboard.html',
                            students=students,
                            units=units,
                            recent_marks=recent_marks,
-                           marks_submitted=marks_submitted)
-
+                           marks_submitted=marks_submitted,
+                           system=system)
 
 @app.route('/lecturer/view_marks')
 @role_required(['lecturer'])
@@ -1013,6 +1027,7 @@ def lecturer_edit_mark(mark_id):
                            unit=unit,
                            unit_name=system.units.get(unit, {}).get('name', unit),
                            current_marks=system.marks[reg_no][unit])
+
 
 @app.route('/lecturer/manage_courses')
 @role_required(['lecturer'])
