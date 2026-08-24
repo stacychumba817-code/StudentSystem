@@ -679,8 +679,8 @@ def admin_add_unit():
                   'danger')
             return render_template('add_unit.html')
 
-        elif len(unit_name) > 20:
-            flash('Unit Name must be 20 characters or less.', 'danger')
+        elif len(unit_name) > 50:
+            flash('Unit Name must be 50 characters or less.', 'danger')
             return render_template('add_unit.html')
 
         elif unit_code in system.units:
