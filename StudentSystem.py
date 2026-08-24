@@ -663,36 +663,35 @@ def admin_remove_student():
 @role_required(['admin'])
 def admin_add_unit():
     if request.method == 'POST':
-        unit_code = request.form.get('unit_code', '').strip().upper()
-        unit_name = request.form.get('unit_name', '').strip()
+        unit_code = request.form.get('unit_code', '').strip().upper()  # Must match HTML name="unit_code"
+        unit_name = request.form.get('unit_name', '').strip()          # Must match HTML name="unit_name"
+
+        # Debug - print to console to see what's being received
+        print(f"DEBUG: unit_code='{unit_code}', unit_name='{unit_name}'")
 
         # --- VALIDATION CHECKS ---
-
-        # 1. Check if fields are empty
         if not unit_code or not unit_name:
             flash('Please fill in all fields.', 'danger')
+            return render_template('add_unit.html')
 
-        # 2. NEW CHECK: Reject pure numbers for Unit Code
         elif unit_code.isdigit():
             flash('Invalid Unit Code. It cannot consist of numbers only (e.g., use "BIT112" instead of "112").',
                   'danger')
+            return render_template('add_unit.html')
 
-        # 3. NEW CHECK: Limit Unit Name to 20 characters
         elif len(unit_name) > 20:
             flash('Unit Name must be 20 characters or less.', 'danger')
+            return render_template('add_unit.html')
 
-        # 4. Check if Unit Code already exists
         elif unit_code in system.units:
             flash(f'Unit "{unit_code}" already exists.', 'danger')
+            return render_template('add_unit.html')
 
         # --- IF ALL CHECKS PASS ---
         else:
-            system.units[unit_code] = {
-                'name': unit_name,
-                'course': None  # Or whatever default you use in your system
-            }
+            system.units[unit_code] = {'name': unit_name}
             system.save_units()
-            flash(f'Unit "{unit_code}" added.', 'success')
+            flash(f'Unit "{unit_code}" added successfully!', 'success')
             return redirect(url_for('admin_add_unit'))
 
     return render_template('add_unit.html')
