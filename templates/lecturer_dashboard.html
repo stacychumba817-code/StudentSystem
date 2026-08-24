@@ -7,8 +7,8 @@
     <!-- Welcome -->
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="display-5">Lecturer Dashboard</h1>
-            <p class="text-muted">Welcome, {{ username }}! Manage student marks and view your courses below.</p>
+            <h1 class="display-5">Welcome, {{ username }}!</h1>
+            <p class="text-muted">Manage student marks and view your courses below.</p>
         </div>
     </div>
 
@@ -36,7 +36,7 @@
                                 {% endfor %}
                             </select>
                             {% if students|length == 0 %}
-                            <div class="text-muted small mt-1">No students available</div>
+                            <div class="text-muted small mt-1">No students available. Please contact admin to add students.</div>
                             {% endif %}
                         </div>
 
@@ -52,7 +52,7 @@
                                 {% endfor %}
                             </select>
                             {% if units|length == 0 %}
-                            <div class="text-muted small mt-1">No units available</div>
+                            <div class="text-muted small mt-1">No units available. Please contact admin to add units.</div>
                             {% endif %}
                         </div>
 
@@ -62,7 +62,7 @@
                                 <i class="fas fa-percent"></i> Marks (%)
                             </label>
                             <input type="number" class="form-control" id="marks" name="marks"
-                                   placeholder="Enter marks (0-100)" min="0" max="100" step="0.1" required>
+                                   placeholder="Enter marks (0-100)" min="0" max="100" step="1" required>
                             <div class="form-text">Enter a value between 0 and 100</div>
                         </div>
 
@@ -99,7 +99,7 @@
                         </div>
                         <div class="col-6 mb-3">
                             <div class="border rounded p-3 bg-light">
-                                <h3 class="display-6">{{ courses|length }}</h3>
+                                <h3 class="display-6">{{ system.courses|length }}</h3>
                                 <p class="text-muted mb-0">My Courses</p>
                             </div>
                         </div>
@@ -111,7 +111,7 @@
                         </div>
                     </div>
 
-                    <!-- Recent Activity / Quick Links -->
+                    <!-- Quick Links -->
                     <div class="mt-auto">
                         <div class="d-grid gap-2">
                             <a href="{{ url_for('lecturer_view_marks') }}" class="btn btn-outline-primary">
@@ -127,7 +127,7 @@
         </div>
     </div>
 
-    <!-- Recent Marks Table (Optional) -->
+    <!-- Recent Marks Table -->
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">

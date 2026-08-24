@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}My Marks{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5">My Academic Results</h1>
+            <p class="text-muted">Student: {{ student_name }}</p>
+        </div>
+    </div>
+
+    <!-- GPA Card -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h2 class="display-4">{{ gpa|default('0.00') }}</h2>
+                    <p class="text-muted">Cumulative GPA</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h2 class="display-4">{{ marks|length }}</h2>
+                    <p class="text-muted">Units Taken</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h2 class="display-4">
+                        {% set passed = marks|selectattr('marks', 'ge', 50)|list|length %}
+                        {{ passed }}/{{ marks|length }}
+                    </h2>
+                    <p class="text-muted">Units Passed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Marks Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-table"></i> Marks per Unit
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if marks %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Unit Code</th>
+                                    <th>Unit Name</th>
+                                    <th>Marks (%)</th>
+                                    <th>Grade</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for mark in marks %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td><span class="badge bg-secondary">{{ mark.unit_code }}</span></td>
+                                    <td>{{ mark.unit_name }}</td>
+                                    <td>{{ mark.marks }}%</td>
+                                    <td>
+                                        <span class="badge {% if mark.marks >= 70 %}bg-success{% elif mark.marks >= 60 %}bg-info{% elif mark.marks >= 50 %}bg-warning{% elif mark.marks >= 40 %}bg-orange{% else %}bg-danger{% endif %}">
+                                            {% if mark.marks >= 70 %}A{% elif mark.marks >= 60 %}B{% elif mark.marks >= 50 %}C{% elif mark.marks >= 40 %}D{% else %}E{% endif %}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if mark.marks >= 50 %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if mark.marks >= 50 %}✓ PASS{% else %}✗ FAIL{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-2x mb-2"></i>
+                        <p>No marks available yet. Please contact your lecturer.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer text-end">
+                    <a href="{{ url_for('student_download_my_results') }}" class="btn btn-success">
+                        <i class="fas fa-download"></i> Download Results (PDF)
+                    </a>
+                    <a href="{{ url_for('student_download_my_results', format='text') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-file-alt"></i> Download as Text
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

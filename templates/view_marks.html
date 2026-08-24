@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Marks</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .btn { padding: 5px 10px; text-decoration: none; color: white; background-color: #007bff; border-radius: 4px; display: inline-block; }
+        .btn:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Student Marks</h1>
+    <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Student Reg</th>
+                <th>Student Name</th>
+                <th>Unit Code</th>
+                <th>Unit Name</th>
+                <th>Marks</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mark in marks %}
+            <tr>
+                <td>{{ mark.student_reg }}</td>
+                <td>{{ mark.student_name }}</td>
+                <td>{{ mark.unit }}</td>
+                <td>{{ mark.unit_name }}</td>
+                <td>{{ mark.marks }}</td>
+                <td>
+                    <a href="{{ url_for('lecturer_edit_mark', mark_id=mark.student_reg|replace('/', '_') ~ '_' ~ mark.unit) }}" class="btn btn-primary">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

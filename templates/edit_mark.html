@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Mark</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        .btn:hover { background: #0056b3; }
+        .btn-cancel { background: #6c757d; }
+        .btn-cancel:hover { background: #545b62; }
+        .info-box { background: #f8f9fa; padding: 10px; border-left: 4px solid #007bff; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Student Marks</h2>
+
+        <div class="info-box">
+            <strong>Registration:</strong> {{ reg_no }}<br>
+            <strong>Unit:</strong> {{ unit_name }} ({{ unit }})
+        </div>
+
+        <form method="POST">
+            <div class="form-group">
+                <label for="marks">Enter New Marks (0-100):</label>
+                <input type="number" name="marks" id="marks" value="{{ current_marks }}" min="0" max="100" required>
+            </div>
+
+            <div>
+                <button type="submit" class="btn">Update Marks</button>
+                <a href="{{ url_for('lecturer_view_marks') }}" class="btn btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

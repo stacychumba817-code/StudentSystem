@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remove Lecturer</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f4f4f4; }
+
+        .btn-remove {
+            background-color: #ff4d4d; color: white; border: none;
+            padding: 6px 12px; cursor: pointer; text-decoration: none;
+            border-radius: 4px; font-size: 14px;
+        }
+        .btn-remove:hover { background-color: #cc0000; }
+
+        .back-link { display: inline-block; margin-top: 20px; color: #007bff; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+
+        .success-msg { color: green; background: #d4edda; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        .error-msg { color: red; background: #f8d7da; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Remove a Lecturer</h2>
+
+        <!-- Display flash messages if your Python code uses them -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="{{ category }}-msg">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% if lecturers %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lecturer in lecturers %}
+                    <tr>
+                        <!-- Accessing dictionary keys passed from Python -->
+                        <td><strong>{{ lecturer.username }}</strong></td>
+
+                        <td>{{ lecturer.full_name }}</td>
+
+                        <td>
+                            <form action="{{ url_for('admin_remove_lecturer') }}" method="POST" style="display:inline;">
+                                <!-- Using 'username' as the form key, matching your Python POST logic -->
+                                <input type="hidden" name="username" value="{{ lecturer.username }}">
+                                <button type="submit" class="btn-remove" onclick="return confirm('Are you sure you want to remove {{ lecturer.full_name }}?');">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: #666; font-style: italic;">No lecturers found to remove.</p>
+        {% endif %}
+
+        <a href="{{ url_for('admin_view_lecturers') }}" class="back-link">← Back to Lecturers List</a>
+    </div>
+</body>
+</html>
