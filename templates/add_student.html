@@ -1,33 +1,573 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Student - Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% extends "base.html" %}
-{% block title %}Add Student{% endblock %}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
 
-{% block content %}
-<h2>Add Student</h2>
-<form method="POST">
-    <div class="mb-3">
-        <label for="reg_no" class="form-label">Registration Number</label>
-        <input type="text" class="form-control" id="reg_no" name="reg_no" required placeholder="e.g., SSTB/01-0203/2026">
-        <div class="form-text">Use letters, numbers, / - _ . only.</div>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header .subtitle {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info .username {
+            font-weight: bold;
+        }
+
+        .user-info .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .user-info a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .user-info a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .main-card h2 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            font-size: 22px;
+        }
+
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .alert-danger {
+            background: #fed7d7;
+            color: #9b2c2c;
+            border: 1px solid #feb2b2;
+        }
+
+        .alert-warning {
+            background: #feebc8;
+            color: #744210;
+            border: 1px solid #fbd38d;
+        }
+
+        .alert-info {
+            background: #bee3f8;
+            color: #2a4365;
+            border: 1px solid #90cdf4;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #fc8181;
+            margin-left: 3px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f7fafc;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #a0aec0;
+        }
+
+        .form-group .help-text {
+            display: block;
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
+        }
+
+        .form-group .help-text .info-icon {
+            display: inline-block;
+            background: #e2e8f0;
+            color: #4a5568;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 40px;
+        }
+
+        .form-group select option {
+            padding: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #fc8181;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #f56565;
+        }
+
+        .footer-links {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .student-preview {
+            background: #f7fafc;
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .student-preview.show {
+            display: block;
+        }
+
+        .student-preview .preview-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .student-preview .preview-details {
+            margin-top: 10px;
+        }
+
+        .student-preview .preview-item {
+            display: flex;
+            gap: 10px;
+            padding: 5px 0;
+        }
+
+        .student-preview .preview-item .label {
+            font-weight: 600;
+            color: #4a5568;
+            min-width: 100px;
+        }
+
+        .student-preview .preview-item .value {
+            color: #333;
+        }
+
+        .student-preview .preview-item .value.highlight {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+
+            .user-info {
+                margin-top: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .main-card {
+                padding: 20px;
+                margin: 0 10px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .button-group .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .main-card {
+                padding: 15px;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>🏛️ University Academic Portal</h1>
+                <p class="subtitle">Student Management</p>
+            </div>
+            <div class="user-info">
+                <span class="username">{{ session.get('username', 'admin') }}</span>
+                <span class="badge">Admin</span>
+                <a href="{{ url_for('logout') }}">🚪 Logout</a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-card">
+            <h2>👨‍🎓 Add New Student</h2>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {% if category == 'success' %}✅
+                                {% elif category == 'danger' %}❌
+                                {% elif category == 'warning' %}⚠️
+                                {% else %}ℹ️
+                                {% endif %}
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Form -->
+            <form method="POST" action="{{ url_for('admin_add_student') }}">
+                <div class="form-group">
+                    <label for="reg_no">
+                        Registration Number <span class="required">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="reg_no"
+                        name="reg_no"
+                        placeholder="e.g., S12345 or 2024/CS/001"
+                        required
+                        oninput="previewStudent()"
+                    >
+                    <span class="help-text">
+                        <span class="info-icon">i</span>
+                        Must contain at least one letter (cannot be only numbers)
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="name">
+                        Full Name <span class="required">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        placeholder="e.g., John Doe"
+                        required
+                        oninput="previewStudent()"
+                    >
+                    <span class="help-text">
+                        <span class="info-icon">i</span>
+                        Max 30 characters, letters, spaces, hyphens, and dots only
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="course">
+                        Course <span class="required">*</span>
+                    </label>
+                    <select id="course" name="course" required onchange="previewStudent()">
+                        <option value="">Select a course</option>
+                        {% for code, data in courses %}
+                            <option value="{{ code }}">{{ code }} - {{ data.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="help-text">
+                        <span class="info-icon">i</span>
+                        Select the course the student will be enrolled in
+                    </span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        Password <span class="required">*</span>
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Minimum 4 characters"
+                        required
+                        minlength="4"
+                        oninput="previewStudent()"
+                    >
+                    <span class="help-text">
+                        <span class="info-icon">i</span>
+                        Student will use this password to login (minimum 4 characters)
+                    </span>
+                </div>
+
+                <!-- Live Preview -->
+                <div id="studentPreview" class="student-preview">
+                    <div class="preview-label">📋 Student Preview</div>
+                    <div class="preview-details">
+                        <div class="preview-item">
+                            <span class="label">Registration No:</span>
+                            <span class="value highlight" id="previewReg">Not set</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="label">Full Name:</span>
+                            <span class="value" id="previewName">Not set</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="label">Course:</span>
+                            <span class="value" id="previewCourse">Not selected</span>
+                        </div>
+                        <div class="preview-item">
+                            <span class="label">Password:</span>
+                            <span class="value" id="previewPassword">••••••••</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">➕ Add Student</button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">❌ Cancel</a>
+                </div>
+            </form>
+
+            <div class="footer-links">
+                <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+                <a href="{{ url_for('view_students') }}">👥 View All Students</a>
+                <a href="{{ url_for('admin_manage_students') }}">📋 Manage Students</a>
+            </div>
+        </div>
     </div>
-    <div class="mb-3">
-        <label for="name" class="form-label">Full Name</label>
-        <input type="text" class="form-control" id="name" name="name" required>
-    </div>
-    <div class="mb-3">
-        <label for="course" class="form-label">Course</label>
-        <select class="form-select" id="course" name="course" required>
-            <option value="">Select a course</option>
-            {% for code, info in courses %}
-                <option value="{{ code }}">{{ code }} – {{ info.name }}</option>
-            {% endfor %}
-        </select>
-    <div class="mb-3">
-    <label for="password" class="form-label">Set Student Password</label>
-    <input type="text" class="form-control" id="password" name="password" required placeholder="Enter a unique password">
-    </div>
-    </div>
-    <button type="submit" class="btn btn-primary">Add Student</button>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
-</form>
-{% endblock %}
+
+    <script>
+        function previewStudent() {
+            const reg = document.getElementById('reg_no').value || 'Not set';
+            const name = document.getElementById('name').value || 'Not set';
+            const courseSelect = document.getElementById('course');
+            const course = courseSelect.options[courseSelect.selectedIndex]?.text || 'Not selected';
+            const password = document.getElementById('password').value;
+            const passwordDisplay = password ? '••••••••' : 'Not set';
+
+            const preview = document.getElementById('studentPreview');
+            document.getElementById('previewReg').textContent = reg;
+            document.getElementById('previewName').textContent = name;
+            document.getElementById('previewCourse').textContent = course;
+            document.getElementById('previewPassword').textContent = passwordDisplay;
+
+            // Show preview if any field has content
+            if (reg !== 'Not set' || name !== 'Not set' || course !== 'Not selected' || password) {
+                preview.classList.add('show');
+            } else {
+                preview.classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>

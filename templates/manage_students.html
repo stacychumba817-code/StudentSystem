@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Students - Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header .subtitle { margin: 5px 0 0 0; opacity: 0.9; font-size: 14px; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info .username { font-weight: bold; }
+        .user-info .badge { background: rgba(255,255,255,0.2); padding: 3px 12px; border-radius: 12px; font-size: 12px; }
+        .user-info a { color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px; transition: background 0.3s; }
+        .user-info a:hover { background: rgba(255,255,255,0.3); }
+
+        .main-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .main-card h2 { color: #333; border-bottom: 2px solid #667eea; padding-bottom: 15px; margin-bottom: 25px; }
+
+        .flash-messages { margin-bottom: 20px; }
+        .alert { padding: 12px 20px; border-radius: 5px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .alert-success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .alert-danger { background: #fed7d7; color: #9b2c2c; border: 1px solid #feb2b2; }
+        .alert-warning { background: #feebc8; color: #744210; border: 1px solid #fbd38d; }
+
+        .form-section {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px; }
+        .form-group label .required { color: #fc8181; margin-left: 3px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: white;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 15px rgba(102,126,234,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+        .btn-danger { background: #fc8181; color: white; }
+        .btn-danger:hover { background: #f56565; }
+        .btn-info { background: #63b3ed; color: white; }
+        .btn-info:hover { background: #4299e1; }
+        .btn-warning { background: #ed8936; color: white; }
+        .btn-warning:hover { background: #dd6b20; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-success:hover { background: #38a169; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 4px; }
+
+        .stats { background: #f7fafc; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; }
+        .stats strong { color: #667eea; }
+
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #667eea; color: white; padding: 12px 15px; text-align: left; }
+        td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+        tr:hover { background: #f7fafc; }
+
+        .empty-message { text-align: center; color: #718096; padding: 40px; }
+        .footer-links { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; }
+        .footer-links a { color: #667eea; text-decoration: none; font-weight: 500; }
+        .footer-links a:hover { text-decoration: underline; }
+
+        .action-group { display: flex; gap: 5px; flex-wrap: wrap; }
+        .gpa-high { color: #38a169; font-weight: bold; }
+        .gpa-medium { color: #ed8936; font-weight: bold; }
+        .gpa-low { color: #fc8181; font-weight: bold; }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; text-align: center; }
+            .user-info { margin-top: 15px; flex-wrap: wrap; justify-content: center; }
+            .footer-links { flex-direction: column; gap: 10px; text-align: center; }
+            .form-group input, .form-group select { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🏛️ University Academic Portal</h1>
+                <p class="subtitle">Student Management</p>
+            </div>
+            <div class="user-info">
+                <span class="username">{{ session.get('username', 'admin') }}</span>
+                <span class="badge">Admin</span>
+                <a href="{{ url_for('logout') }}">🚪 Logout</a>
+            </div>
+        </div>
+        <div class="main-card">
+            <h2>👨‍🎓 Manage Students</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{% if category == 'success' %}✅{% elif category == 'danger' %}❌{% else %}⚠️{% endif %} {{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="stats">
+                <strong>📊 Total Students:</strong> {{ students|length }}
+            </div>
+
+            <!-- Add Student Form -->
+            <div class="form-section">
+                <h3 style="margin-bottom: 15px; color: #333;">➕ Add New Student</h3>
+                <form method="POST" action="{{ url_for('admin_manage_students') }}">
+                    <div class="form-group">
+                        <label for="reg_no">Registration No <span class="required">*</span></label>
+                        <input type="text" id="reg_no" name="reg_no" placeholder="e.g., S12345 or 2024/CS/001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Full Name <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" placeholder="e.g., John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="course">Course <span class="required">*</span></label>
+                        <select id="course" name="course" required>
+                            <option value="">Select Course</option>
+                            {% for code, data in courses %}
+                                <option value="{{ code }}">{{ code }} - {{ data.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password <span class="required">*</span></label>
+                        <input type="password" id="password" name="password" placeholder="Min 4 characters" required minlength="4">
+                    </div>
+                    <button type="submit" class="btn btn-primary">➕ Add Student</button>
+                </form>
+            </div>
+
+            <!-- Student List -->
+            <h3 style="margin-bottom: 15px; color: #333;">📋 Registered Students</h3>
+            {% if students %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Reg No</th>
+                                <th>Name</th>
+                                <th>Course</th>
+                                <th>Units</th>
+                                <th>GPA</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><strong>{{ student.reg_no }}</strong></td>
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.course }}</td>
+                                <td>{{ student.marks_count }}</td>
+                                <td>
+                                    {% if student.gpa > 0 %}
+                                        {% if student.gpa >= 3.5 %}
+                                            <span class="gpa-high">{{ student.gpa }}</span>
+                                        {% elif student.gpa >= 2.5 %}
+                                            <span class="gpa-medium">{{ student.gpa }}</span>
+                                        {% else %}
+                                            <span class="gpa-low">{{ student.gpa }}</span>
+                                        {% endif %}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="action-group">
+                                        <a href="{{ url_for('student_download', reg_no=student.reg_no, format='pdf') }}"
+                                           class="btn btn-info btn-sm" target="_blank">PDF</a>
+                                        <a href="{{ url_for('student_download', reg_no=student.reg_no, format='text') }}"
+                                           class="btn btn-warning btn-sm">TXT</a>
+                                        <a href="{{ url_for('admin_remove_student') }}?reg_no={{ student.reg_no }}"
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('Remove {{ student.name }}? This will also delete their account.')">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 15px;">
+                    <a href="{{ url_for('student_download_all', format='pdf') }}" class="btn btn-primary">📥 Download All (PDF)</a>
+                    <a href="{{ url_for('student_download_all', format='text') }}" class="btn btn-warning">📥 Download All (TXT)</a>
+                </div>
+            {% else %}
+                <div class="empty-message">
+                    <p>😕 No students registered yet.</p>
+                    <p>Use the form above to add your first student!</p>
+                </div>
+            {% endif %}
+
+            <div class="footer-links">
+                <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+                <a href="{{ url_for('view_students') }}">👥 View All Students</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

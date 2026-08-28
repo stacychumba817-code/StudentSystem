@@ -1,59 +1,326 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Students</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block title %}Registered Students{% endblock %}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-{% block content %}
-<div class="container mt-4">
-    <h2>Registered Students</h2>
-    <p class="text-muted">Total: {{ students|length }}</p>
+        /* Navbar Styles */
+        .navbar {
+            background: #1a202c;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
 
-    <div class="card p-3 mt-3">
-        <div class="table-responsive">
-            <table class="table table-hover table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Reg No</th>
-                        <th>Name</th>
-                        <th>Course</th>
-                        <th>Units</th>
-                        <th>GPA</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for student in students %}
-                    <tr>
-                        <td>{{ student.reg_no }}</td>
-                        <td>{{ student.name }}</td>
-                        <td>{{ student.course }}</td>
-                        <td>{{ student.marks_count }}</td>
-                        <td>
-                            {% if student.gpa > 0 %}
-                                <span class="badge rounded-pill {% if student.gpa >= 3.5 %}bg-success{% elif student.gpa >= 2.5 %}bg-warning text-dark{% elif student.gpa >= 1.5 %}bg-danger{% else %}bg-secondary{% endif %}">
-                                    {{ student.gpa }}
-                                </span>
-                            {% else %}
-                                <span class="badge rounded-pill bg-secondary">N/A</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <!-- Download GPA PDF -->
-                                <a href="{{ url_for('student_download', reg_no=student.reg_no) }}" class="btn btn-success btn-sm" title="Download Result PDF">
-                                    PDF
-                                </a>
-                                <!-- Download GPA Text -->
-                                <a href="{{ url_for('student_download', reg_no=student.reg_no, format='text') }}" class="btn btn-secondary btn-sm" title="Download Result Text">
-                                    TXT
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        .navbar .brand {
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .navbar a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            width: 100%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .page-header .subtitle {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .alert-danger {
+            background: #fed7d7;
+            color: #9b2c2c;
+            border: 1px solid #feb2b2;
+        }
+
+        .alert-warning {
+            background: #feebc8;
+            color: #744210;
+            border: 1px solid #fbd38d;
+        }
+
+        /* Section Cards */
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            color: #333;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f7fafc;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Badge Styles */
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .badge-success {
+            background: #48bb78;
+        }
+
+        .badge-warning {
+            background: #ed8936;
+        }
+
+        .badge-info {
+            background: #63b3ed;
+        }
+
+        /* Button Styles */
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 5px;
+            color: white;
+        }
+
+        .btn-pdf {
+            background: #667eea;
+        }
+
+        .btn-pdf:hover {
+            background: #5a67d8;
+        }
+
+        .btn-txt {
+            background: #ed8936;
+        }
+
+        .btn-txt:hover {
+            background: #dd6b20;
+        }
+
+        .btn-back {
+            background: #718096;
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        .btn-back:hover {
+            background: #4a5568;
+        }
+
+        .text-muted {
+            color: #718096;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+
+            .navbar {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <div class="navbar">
+        <div class="brand">🏛️ University Academic Portal</div>
+        <a href="{{ url_for('dashboard') }}">🏠 Dashboard</a>
     </div>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
-</div>
-{% endblock %}
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1>👨‍🎓 Registered Students</h1>
+                <p class="subtitle">Total: {{ students|length }}</p>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Students Table -->
+        <div class="section">
+            <h2>Student Details</h2>
+            {% if students %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reg No</th>
+                                <th>Name</th>
+                                <th>Course</th>
+                                <th>Units</th>
+                                <th>GPA</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td><strong>{{ student.reg_no }}</strong></td>
+                                <td>{{ student.name }}</td>
+                                <td><span class="badge badge-info">{{ student.course }}</span></td>
+                                <td>{{ student.marks_count }}</td>
+                                <td>
+                                    {% if student.gpa >= 2.0 %}
+                                        <span class="badge badge-success">{{ student.gpa }}</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">{{ student.gpa }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('student_download', reg_no=student.reg_no, format='pdf') }}" class="btn-sm btn-pdf">PDF</a>
+                                    <a href="{{ url_for('student_download', reg_no=student.reg_no, format='text') }}" class="btn-sm btn-txt">TXT</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted text-center" style="padding: 20px;">No students registered yet.</p>
+            {% endif %}
+        </div>
+
+        <a href="{{ url_for('dashboard') }}" class="btn-back">← Back to Dashboard</a>
+    </div>
+</body>
+</html>

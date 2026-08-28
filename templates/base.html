@@ -4,15 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Academic Portal – {% block title %}{% endblock %}</title>
+
+    <!-- Security: Prevent caching of authenticated pages -->
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         body { padding-top: 70px; }
         .flash-messages { margin-top: 20px; }
         .table-actions .btn { margin: 0 2px; }
+        .navbar-text { color: rgba(255,255,255,0.8) !important; }
     </style>
+
+    <!-- Security: Back button protection -->
+    <script>
+        // Prevent page from being cached
+        window.addEventListener('pageshow', function(event) {
+            // If page is loaded from cache (back button)
+            if (event.persisted) {
+                // Check if user is logged in via session
+                {% if session.get('username') %}
+                    // Still logged in - force page refresh to validate session
+                    window.location.reload(true);
+                {% else %}
+                    // Not logged in - redirect to login
+                    window.location.href = "{{ url_for('login') }}";
+                {% endif %}
+            }
+        });
+
+        // Prevent using back button to access logged-in pages
+        (function() {
+            // Push initial state
+            history.pushState({page: window.location.href}, '', window.location.href);
+
+            window.addEventListener('popstate', function(event) {
+                // Check if user is logged in
+                {% if session.get('username') %}
+                    // User is logged in - check if trying to go to login page
+                    if (window.location.href.includes('login')) {
+                        // Force logout
+                        window.location.href = "{{ url_for('logout') }}";
+                    } else {
+                        // Refresh to validate session
+                        window.location.reload(true);
+                    }
+                {% else %}
+                    // No session - redirect to login
+                    window.location.href = "{{ url_for('login') }}";
+                {% endif %}
+            });
+        })();
+    </script>
 </head>
 <body>
 
+<!-- Navigation Bar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('dashboard') }}">
@@ -22,32 +75,55 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-
             <!-- Right side: Username and Logout -->
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><span class="navbar-text me-3">👤 {{ username }}</span></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">🚪 Logout</a></li>
+                {% if session.get('username') %}
+                    <li class="nav-item">
+                        <span class="navbar-text me-3">
+                            <i class="fas fa-user-circle"></i> {{ session.get('username') }}
+                            {% if session.get('role') %}
+                                <span class="badge bg-info ms-1">{{ session.get('role') }}</span>
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
 </nav>
 
+<!-- Main Content -->
 <div class="container">
+    <!-- Flash Messages -->
     <div class="flash-messages">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
     </div>
+
+    <!-- Page Content -->
     {% block content %}{% endblock %}
 </div>
 
+<!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

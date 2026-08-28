@@ -1,184 +1,428 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block title %}Lecturer Dashboard{% endblock %}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
 
-{% block content %}
-<div class="container mt-4">
-    <!-- Welcome -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="display-5">Welcome, {{ username }}!</h1>
-            <p class="text-muted">Manage student marks and view your courses below.</p>
-        </div>
-    </div>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-    <!-- Cards Row -->
-    <div class="row">
-        <!-- Add Marks Card -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-pen"></i> Add Marks
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ url_for('lecturer_add_marks') }}">
-                        <!-- Student Selection -->
-                        <div class="mb-3">
-                            <label for="student_id" class="form-label fw-bold">
-                                <i class="fas fa-user-graduate"></i> Select Student
-                            </label>
-                            <select class="form-select" id="student_id" name="student_id" required>
-                                <option value="">-- Choose a student --</option>
-                                {% for student in students %}
-                                <option value="{{ student.id }}">{{ student.name }} ({{ student.id }})</option>
-                                {% endfor %}
-                            </select>
-                            {% if students|length == 0 %}
-                            <div class="text-muted small mt-1">No students available. Please contact admin to add students.</div>
-                            {% endif %}
-                        </div>
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
 
-                        <!-- Unit Selection -->
-                        <div class="mb-3">
-                            <label for="unit_id" class="form-label fw-bold">
-                                <i class="fas fa-layer-group"></i> Select Unit
-                            </label>
-                            <select class="form-select" id="unit_id" name="unit_id" required>
-                                <option value="">-- Choose a unit --</option>
-                                {% for unit in units %}
-                                <option value="{{ unit.id }}">{{ unit.name }} ({{ unit.code }})</option>
-                                {% endfor %}
-                            </select>
-                            {% if units|length == 0 %}
-                            <div class="text-muted small mt-1">No units available. Please contact admin to add units.</div>
-                            {% endif %}
-                        </div>
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
 
-                        <!-- Marks Input -->
-                        <div class="mb-3">
-                            <label for="marks" class="form-label fw-bold">
-                                <i class="fas fa-percent"></i> Marks (%)
-                            </label>
-                            <input type="number" class="form-control" id="marks" name="marks"
-                                   placeholder="Enter marks (0-100)" min="0" max="100" step="1" required>
-                            <div class="form-text">Enter a value between 0 and 100</div>
-                        </div>
+        .header .subtitle {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
 
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="fas fa-save"></i> Submit Marks
-                        </button>
-                    </form>
-                </div>
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info .username {
+            font-weight: bold;
+        }
+
+        .user-info .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .user-info a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .user-info a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Stats Grid Styles */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .stat-card .stat-icon {
+            font-size: 30px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Section Styles */
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            color: #333;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f7fafc;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Badge Styles */
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .badge-success {
+            background: #48bb78;
+        }
+
+        .badge-warning {
+            background: #ed8936;
+        }
+
+        .badge-danger {
+            background: #fc8181;
+        }
+
+        .badge-info {
+            background: #63b3ed;
+        }
+
+        /* Button Styles */
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .btn-download {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: #5a67d8;
+        }
+
+        .btn-add-marks {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-add-marks:hover {
+            background: #38a169;
+        }
+
+        .mt-2 {
+            margin-top: 10px;
+        }
+
+        .text-muted {
+            color: #718096;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+
+            .user-info {
+                margin-top: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>🏛️ University Academic Portal</h1>
+                <p class="subtitle">Lecturer Dashboard</p>
+            </div>
+            <div class="user-info">
+                <span class="username">👤 {{ session.get('username') }}</span>
+                <span class="badge">Lecturer</span>
+                <a href="{{ url_for('logout') }}">🚪 Logout</a>
             </div>
         </div>
 
-        <!-- Quick Stats Card -->
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-chart-simple"></i> Quick Stats
-                    </h5>
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
                 </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="row text-center">
-                        <div class="col-6 mb-3">
-                            <div class="border rounded p-3 bg-light">
-                                <h3 class="display-6">{{ students|length }}</h3>
-                                <p class="text-muted mb-0">Total Students</p>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="border rounded p-3 bg-light">
-                                <h3 class="display-6">{{ units|length }}</h3>
-                                <p class="text-muted mb-0">Total Units</p>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="border rounded p-3 bg-light">
-                                <h3 class="display-6">{{ system.courses|length }}</h3>
-                                <p class="text-muted mb-0">My Courses</p>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="border rounded p-3 bg-light">
-                                <h3 class="display-6">{{ marks_submitted|default(0) }}</h3>
-                                <p class="text-muted mb-0">Marks Submitted</p>
-                            </div>
-                        </div>
-                    </div>
+            {% endif %}
+        {% endwith %}
 
-                    <!-- Quick Links -->
-                    <div class="mt-auto">
-                        <div class="d-grid gap-2">
-                            <a href="{{ url_for('lecturer_view_marks') }}" class="btn btn-outline-primary">
-                                <i class="fas fa-eye"></i> View All Marks
-                            </a>
-                            <a href="{{ url_for('lecturer_manage_courses') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-book"></i> Manage Courses
-                            </a>
-                        </div>
-                    </div>
-                </div>
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-icon">👨‍🎓</span>
+                <h3>My Students</h3>
+                <div class="number">{{ student_count }}</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📚</span>
+                <h3>Units Taught</h3>
+                <div class="number">{{ taught_units|length }}</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📝</span>
+                <h3>Marks Submitted</h3>
+                <div class="number">{{ marks_submitted }}</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📊</span>
+                <h3>Courses</h3>
+                <div class="number">{{ courses_taught|length }}</div>
             </div>
         </div>
-    </div>
 
-    <!-- Recent Marks Table -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-clock"></i> Recent Marks
-                    </h5>
+        <!-- Students Taking My Courses -->
+        <div class="section">
+            <h2>🎓 Students Taking My Courses</h2>
+            {% if students_in_my_units %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Reg No</th>
+                                <th>Student Name</th>
+                                <th>Course</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students_in_my_units %}
+                            <tr>
+                                <td><strong>{{ student.reg }}</strong></td>
+                                <td>{{ student.name }}</td>
+                                <td>
+                                    {% if student.course and student.course != 'N/A' %}
+                                        <span class="badge badge-info">{{ student.course }}</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('add_marks', reg_no=student.reg) }}"
+                                       class="btn-sm btn-add-marks">➕ Add Marks</a>
+                                    <a href="{{ url_for('student_download', reg_no=student.reg, format='pdf') }}"
+                                       class="btn-sm btn-download">📄 PDF</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-body">
-                    {% if recent_marks %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Student</th>
-                                    <th>Unit</th>
-                                    <th>Marks (%)</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for mark in recent_marks %}
-                                <tr>
-                                    <td>{{ mark.student_name }}</td>
-                                    <td>{{ mark.unit_name }}</td>
-                                    <td>
-                                        <span class="badge {% if mark.marks >= 70 %}bg-success{% elif mark.marks >= 50 %}bg-warning{% else %}bg-danger{% endif %}">
-                                            {{ mark.marks }}%
-                                        </span>
-                                    </td>
-                                    <td>{{ mark.date_submitted }}</td>
-                                    <td>
-                                        <a href="{{ url_for('lecturer_edit_mark', mark_id=mark.id) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-inbox fa-2x mb-2"></i>
-                        <p>No marks submitted yet. Use the form above to add marks.</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+            {% else %}
+                <p class="text-muted text-center" style="padding: 20px;">No students are currently enrolled in your units.</p>
+            {% endif %}
         </div>
+
+        <!-- Units Taught -->
+        <div class="section">
+            <h2>📖 My Units</h2>
+            {% if units %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Unit Code</th>
+                                <th>Unit Name</th>
+                                <th>Course</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for unit in units %}
+                            <tr>
+                                <td><strong>{{ unit.code }}</strong></td>
+                                <td>{{ unit.name }}</td>
+                                <td>
+                                    {% if unit.course_code and unit.course_code != 'No course' %}
+                                        <span class="badge badge-info">{{ unit.course_code }}</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">No course</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted text-center" style="padding: 20px;">You are not assigned to any units yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Recent Marks -->
+        <div class="section">
+            <h2>📝 Recent Marks Submissions</h2>
+            {% if recent_marks %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Unit</th>
+                                <th>Marks</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mark in recent_marks %}
+                            <tr>
+                                <td>{{ mark.student_name }}</td>
+                                <td>{{ mark.unit_name }}</td>
+                                <td><span class="badge badge-success">{{ mark.marks }}</span></td>
+                                <td>{{ mark.date_submitted }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted text-center" style="padding: 20px;">No marks have been submitted yet.</p>
+            {% endif %}
+        </div>
+
     </div>
-</div>
-{% endblock %}
+</body>
+</html>

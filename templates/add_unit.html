@@ -1,30 +1,154 @@
-{% extends "base.html" %}
-{% block title %}Add Unit{% endblock %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Unit - Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; }
 
-{% block content %}
-<h2>Add Unit</h2>
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header .subtitle { margin: 5px 0 0 0; opacity: 0.9; font-size: 14px; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info .username { font-weight: bold; }
+        .user-info .badge { background: rgba(255,255,255,0.2); padding: 3px 12px; border-radius: 12px; font-size: 12px; }
+        .user-info a { color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px; transition: background 0.3s; }
+        .user-info a:hover { background: rgba(255,255,255,0.3); }
 
-<!-- Display flash messages -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
+        .main-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .main-card h2 { color: #333; border-bottom: 2px solid #667eea; padding-bottom: 15px; margin-bottom: 25px; }
 
-<form method="POST" action="{{ url_for('admin_add_unit') }}">
-    <div class="mb-3">
-        <label for="unit_code" class="form-label">Unit Code</label>
-        <input type="text" class="form-control" id="unit_code" name="unit_code" required placeholder="e.g., BIT112">
-        <div class="form-text">Uppercase letters, numbers, hyphens, underscores only (e.g., BIT112, MATH-101).</div>
+        .flash-messages { margin-bottom: 20px; }
+        .alert { padding: 12px 20px; border-radius: 5px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .alert-success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .alert-danger { background: #fed7d7; color: #9b2c2c; border: 1px solid #feb2b2; }
+        .alert-warning { background: #feebc8; color: #744210; border: 1px solid #fbd38d; }
+
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; font-weight: 600; color: #333; margin-bottom: 8px; font-size: 14px; }
+        .form-group label .required { color: #fc8181; margin-left: 3px; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f7fafc;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        .form-group input::placeholder { color: #a0aec0; }
+        .form-group .help-text { display: block; font-size: 12px; color: #718096; margin-top: 5px; }
+        .form-group .help-text .info-icon { display: inline-block; background: #e2e8f0; color: #4a5568; width: 18px; height: 18px; border-radius: 50%; text-align: center; line-height: 18px; font-size: 11px; font-weight: bold; margin-right: 5px; }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 15px rgba(102,126,234,0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+        .btn-secondary { background: #e2e8f0; color: #4a5568; }
+        .btn-secondary:hover { background: #cbd5e0; }
+
+        .button-group { display: flex; gap: 15px; margin-top: 10px; }
+        .footer-links { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; }
+        .footer-links a { color: #667eea; text-decoration: none; font-weight: 500; }
+        .footer-links a:hover { text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; text-align: center; }
+            .user-info { margin-top: 15px; flex-wrap: wrap; justify-content: center; }
+            .button-group { flex-direction: column; }
+            .button-group .btn { width: 100%; text-align: center; }
+            .footer-links { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🏛️ University Academic Portal</h1>
+                <p class="subtitle">Unit Management</p>
+            </div>
+            <div class="user-info">
+                <span class="username">{{ session.get('username', 'admin') }}</span>
+                <span class="badge">Admin</span>
+                <a href="{{ url_for('logout') }}">🚪 Logout</a>
+            </div>
+        </div>
+        <div class="main-card">
+            <h2>📖 Add New Unit</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{% if category == 'success' %}✅{% elif category == 'danger' %}❌{% else %}⚠️{% endif %} {{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <form method="POST" action="{{ url_for('admin_add_unit') }}">
+                <div class="form-group">
+                    <label for="unit_code">Unit Code <span class="required">*</span></label>
+                    <input type="text" id="unit_code" name="unit_code" placeholder="e.g., CS101" required oninput="this.value = this.value.toUpperCase();">
+                    <span class="help-text"><span class="info-icon">i</span> Cannot contain spaces (e.g., BIT112, CS101)</span>
+                </div>
+                <div class="form-group">
+                    <label for="unit_name">Unit Name <span class="required">*</span></label>
+                    <input type="text" id="unit_name" name="unit_name" placeholder="e.g., Introduction to Programming" required>
+                    <span class="help-text"><span class="info-icon">i</span> Max 40 characters</span>
+                </div>
+                <div class="form-group">
+                    <label for="course_code">Associate with Course (Optional)</label>
+                    <select id="course_code" name="course_code">
+                        <option value="">None - No course</option>
+                        {% for code, data in courses %}
+                            <option value="{{ code }}">{{ code }} - {{ data.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="help-text"><span class="info-icon">i</span> Select a course to link this unit to</span>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary">➕ Add Unit</button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">❌ Cancel</a>
+                </div>
+            </form>
+            <div class="footer-links">
+                <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+                <a href="{{ url_for('admin_view_units') }}">📖 View All Units</a>
+            </div>
+        </div>
     </div>
-    <div class="mb-3">
-        <label for="unit_name" class="form-label">Unit Name</label>
-        <input type="text" class="form-control" id="unit_name" name="unit_name" required placeholder="e.g., Introduction to Programming">
-        <div class="form-text">Maximum 20 characters.</div>
-    </div>
-    <button type="submit" class="btn btn-primary">Add Unit</button>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
-</form>
-{% endblock %}
+</body>
+</html>

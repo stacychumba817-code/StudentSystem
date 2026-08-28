@@ -1,41 +1,151 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Courses - Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; min-height: 100vh; }
+        .container { max-width: 1200px; margin: 0 auto; }
 
-{% block title %}Registered Courses{% endblock %}
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header .subtitle { margin: 5px 0 0 0; opacity: 0.9; font-size: 14px; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info .username { font-weight: bold; }
+        .user-info .badge { background: rgba(255,255,255,0.2); padding: 3px 12px; border-radius: 12px; font-size: 12px; }
+        .user-info a { color: white; text-decoration: none; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px; transition: background 0.3s; }
+        .user-info a:hover { background: rgba(255,255,255,0.3); }
 
-{% block content %}
-<div class="container mt-4">
-    <h2>Registered Courses</h2>
-    <div class="card p-3 mt-3">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Course Code</th>
-                    <th scope="col">Course Name</th>
-                    <th scope="col">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for course in courses %}
-                <tr>
-                    <th scope="row">{{ loop.index }}</th>
-                    <td>{{ course[0] }}</td>
-                    <td>{{ course[1]['name'] }}</td>
-                    <td>
-                        <form action="{{ url_for('admin_remove_course') }}" method="POST" onsubmit="return confirm('Are you sure you want to remove course {{ course[0] }}?');">
-                            <input type="hidden" name="code" value="{{ course[0] }}">
-                            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="4" class="text-center text-muted">No courses have been added yet.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        .main-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        .main-card h2 { color: #333; border-bottom: 2px solid #667eea; padding-bottom: 15px; margin-bottom: 20px; }
+
+        .stats { background: #f7fafc; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; }
+        .stats strong { color: #667eea; }
+
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #667eea; color: white; padding: 12px 15px; text-align: left; }
+        td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+        tr:hover { background: #f7fafc; }
+
+        .btn { padding: 8px 16px; border: none; border-radius: 5px; text-decoration: none; display: inline-block; font-size: 13px; transition: all 0.3s; }
+        .btn-danger { background: #fc8181; color: white; }
+        .btn-danger:hover { background: #f56565; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a67d8; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+        .empty-message { text-align: center; color: #718096; padding: 40px; }
+        .footer-links { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; }
+        .footer-links a { color: #667eea; text-decoration: none; font-weight: 500; }
+        .footer-links a:hover { text-decoration: underline; }
+
+        .flash-messages { margin-bottom: 20px; }
+        .alert { padding: 12px 20px; border-radius: 5px; margin-bottom: 10px; }
+        .alert-success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .alert-danger { background: #fed7d7; color: #9b2c2c; border: 1px solid #feb2b2; }
+
+        .action-group { display: flex; gap: 5px; flex-wrap: wrap; }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; text-align: center; }
+            .user-info { margin-top: 15px; flex-wrap: wrap; justify-content: center; }
+            .footer-links { flex-direction: column; gap: 10px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🏛️ University Academic Portal</h1>
+                <p class="subtitle">Course Management</p>
+            </div>
+            <div class="user-info">
+                <span class="username">{{ session.get('username', 'admin') }}</span>
+                <span class="badge">Admin</span>
+                <a href="{{ url_for('logout') }}">🚪 Logout</a>
+            </div>
+        </div>
+        <div class="main-card">
+            <h2>📚 All Courses</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            <div class="stats">
+                <strong>📊 Total Courses:</strong> {{ courses|length }}
+            </div>
+            {% if courses %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Students</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for code, data in courses %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><strong>{{ code }}</strong></td>
+                                <td>{{ data.name }}</td>
+                                <td>
+                                    {% set count = 0 %}
+                                    {% for reg, student in system.students.items() %}
+                                        {% if student.course == code %}
+                                            {% set count = count + 1 %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ count }}
+                                </td>
+                                <td>
+                                    <div class="action-group">
+                                        <a href="{{ url_for('admin_remove_course') }}?code={{ code }}"
+                                           class="btn btn-danger btn-sm"
+                                           onclick="return confirm('Remove course {{ code }}? This will NOT remove students.')">Remove</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-message">
+                    <p>😕 No courses added yet.</p>
+                    <p><a href="{{ url_for('admin_add_course') }}">Add your first course →</a></p>
+                </div>
+            {% endif %}
+            <div class="footer-links">
+                <a href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+                <a href="{{ url_for('admin_add_course') }}">➕ Add New Course</a>
+            </div>
+        </div>
     </div>
-    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">Back to Dashboard</a>
-</div>
-{% endblock %}
+</body>
+</html>
