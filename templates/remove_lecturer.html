@@ -5,72 +5,307 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Remove Lecturer</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #f4f4f4; }
-
-        .btn-remove {
-            background-color: #ff4d4d; color: white; border: none;
-            padding: 6px 12px; cursor: pointer; text-decoration: none;
-            border-radius: 4px; font-size: 14px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .btn-remove:hover { background-color: #cc0000; }
 
-        .back-link { display: inline-block; margin-top: 20px; color: #007bff; text-decoration: none; }
-        .back-link:hover { text-decoration: underline; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-        .success-msg { color: green; background: #d4edda; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
-        .error-msg { color: red; background: #f8d7da; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
+        /* Navbar Styles */
+        .navbar {
+            background: #1a202c;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar .brand {
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info .username {
+            font-weight: bold;
+        }
+
+        .user-info .badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .user-info a {
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .user-info a:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .alert-danger {
+            background: #fed7d7;
+            color: #9b2c2c;
+            border: 1px solid #feb2b2;
+        }
+
+        .alert-warning {
+            background: #feebc8;
+            color: #744210;
+            border: 1px solid #fbd38d;
+        }
+
+        /* Section Styles */
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f7fafc;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Button Styles */
+        .btn-danger {
+            background: #fc8181;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .btn-danger:hover {
+            background: #f56565;
+        }
+
+        .btn-back {
+            background: #718096;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-back:hover {
+            background: #4a5568;
+        }
+
+        .text-muted {
+            color: #718096;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .user-info {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .page-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Remove a Lecturer</h2>
+    <!-- Top Navbar -->
+    <div class="navbar">
+        <div class="brand">🏛️ University Academic Portal</div>
+        <div class="user-info">
+            <span class="username">👤 {{ session.get('username') }}</span>
+            <span class="badge">Admin</span>
+            <a href="{{ url_for('logout') }}">🚪 Logout</a>
+        </div>
+    </div>
 
-        <!-- Display flash messages if your Python code uses them -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>🗑️ Remove a Lecturer</h1>
+        </div>
+
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for category, message in messages %}
-                    <div class="{{ category }}-msg">{{ message }}</div>
-                {% endfor %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
             {% endif %}
         {% endwith %}
 
-        {% if lecturers %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                        <th>Full Name</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for lecturer in lecturers %}
-                    <tr>
-                        <!-- Accessing dictionary keys passed from Python -->
-                        <td><strong>{{ lecturer.username }}</strong></td>
+        <!-- Remove Lecturer Table -->
+        <div class="section">
+            <h2>Lecturer List</h2>
 
-                        <td>{{ lecturer.full_name }}</td>
+            {% if lecturers %}
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Full Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lecturer in lecturers %}
+                            <tr>
+                                <td><strong>{{ lecturer.username }}</strong></td>
+                                <td>{{ lecturer.full_name }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('admin_remove_lecturer') }}" style="display: inline;">
+                                        <input type="hidden" name="username" value="{{ lecturer.username }}">
+                                        <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to remove {{ lecturer.full_name }}?')">🗑️ Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted text-center" style="padding: 20px;">No lecturers registered yet.</p>
+            {% endif %}
+        </div>
 
-                        <td>
-                            <form action="{{ url_for('admin_remove_lecturer') }}" method="POST" style="display:inline;">
-                                <!-- Using 'username' as the form key, matching your Python POST logic -->
-                                <input type="hidden" name="username" value="{{ lecturer.username }}">
-                                <button type="submit" class="btn-remove" onclick="return confirm('Are you sure you want to remove {{ lecturer.full_name }}?');">Remove</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p style="color: #666; font-style: italic;">No lecturers found to remove.</p>
-        {% endif %}
-
-        <a href="{{ url_for('admin_view_lecturers') }}" class="back-link">← Back to Lecturers List</a>
+        <a href="{{ url_for('admin_view_lecturers') }}" class="btn-back">← Back to Lecturers List</a>
     </div>
 </body>
 </html>
