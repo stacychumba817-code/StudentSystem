@@ -33,6 +33,14 @@ USERS_FILE = os.path.join(DATA_DIR, "users.json")
 UNITS_FILE = os.path.join(DATA_DIR, "units.json")
 MARKS_FILE = os.path.join(DATA_DIR, "marks.json")
 
+# Login required decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # ---------- Validation ----------
 def validate_reg_no(reg_no):
@@ -56,8 +64,8 @@ def validate_name(name):
 def validate_course_code(code):
     if not code or not code.strip():
         return False, "Course code is required."
-    if len(code) > 20:
-        return False, "Course code too long (max 20 characters)."
+    if len(code) > 10:
+        return False, "Course code too long (max 10 characters)."
     if not re.match(r'^[A-Z0-9\-]+$', code):
         return False, "Course code can only contain uppercase letters, numbers, and hyphens."
     return True, ""
@@ -66,8 +74,8 @@ def validate_course_code(code):
 def validate_unit(unit):
     if not unit or not unit.strip():
         return False, "Unit code is required."
-    if len(unit) > 30:
-        return False, "Unit code too long (max 30 characters)."
+    if len(unit) > 10:
+        return False, "Unit code too long (max 10 characters)."
     if not re.match(r'^[A-Za-z0-9\-_]+$', unit):
         return False, "Unit code contains invalid characters."
     return True, ""
@@ -187,23 +195,6 @@ def get_lecturer_students(lecturer_username):
             })
 
     return students, courses_taught
-
-
-def get_all_students(self):
-    """Get all students with their details"""
-    students_list = []
-    for reg, data in self.students.items():
-        gpa = self.calculate_gpa(reg)
-        marks = self.get_student_marks(reg)
-        students_list.append({
-            'reg_no': reg,
-            'name': data['name'],
-            'course': data['course'],
-            'marks': marks,
-            'marks_count': len(marks),
-            'gpa': gpa
-        })
-    return sorted(students_list, key=lambda s: s['name'])
 
 
 # ---------- Course management ----------
@@ -344,7 +335,7 @@ class StudentSystem:
 
         return True, f"Student {name} removed (user account also deleted)."
 
-    # ---------- Mark operations (FIXED) ----------
+    # ---------- Mark operations ----------
     def get_student_marks(self, reg_no):
         """Get all marks for a student"""
         if reg_no in self.marks:
@@ -511,9 +502,7 @@ def role_required(allowed_roles):
                 flash('You do not have permission to access this page.', 'danger')
                 return redirect(url_for('dashboard'))
             return f(*args, **kwargs)
-
         return decorated
-
     return decorator
 
 
@@ -566,6 +555,7 @@ def root():
     return redirect(url_for('login'))
 
 
+# ---------- LOGIN ROUTE (ONLY ONE) ----------
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -609,6 +599,7 @@ def logout():
 
 
 @app.route('/dashboard')
+@login_required
 def dashboard():
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -631,15 +622,11 @@ def dashboard():
         if not courses_taught:
             courses_taught = []
 
-        # --- NEW CODE START: Gather students taking units taught by this lecturer ---
+        # Gather students taking units taught by this lecturer
         students_in_my_units = []
         for reg, student_data in system.students.items():
-            # Get the list of units a student is taking (default to empty list if key missing)
             student_units = student_data.get('units', [])
 
-            # Check if the student's course is in the courses taught by this lecturer
-            # OR if they are taking a specific unit directly from taught_units
-            # OR if they already have marks for units taught by this lecturer
             if (student_data.get('course') in courses_taught or
                     any(unit in taught_units for unit in student_units) or
                     any(unit in taught_units for unit in system.marks.get(reg, {}).keys())):
@@ -649,11 +636,9 @@ def dashboard():
                     'course': student_data.get('course', 'N/A'),
                     'units': student_units
                 })
-        # --- NEW CODE END ---
 
         # Get units the lecturer teaches (with course info)
         units = []
-        # FIX: Safely handle if system.units is a list instead of a dictionary
         if isinstance(system.units, dict):
             unit_items = system.units.items()
         else:
@@ -662,9 +647,7 @@ def dashboard():
         for code, data in unit_items:
             if code in taught_units:
                 course_code = data.get('course')
-                # Use .get() safely for missing course info
-                course_name = system.courses.get(course_code, {}).get('name',
-                                                                      'No course') if course_code else 'No course'
+                course_name = system.courses.get(course_code, {}).get('name', 'No course') if course_code else 'No course'
                 units.append({
                     'id': code,
                     'name': data['name'],
@@ -705,7 +688,6 @@ def dashboard():
             course_name = system.courses.get(course_code, {}).get('name', course_code)
             student_count = sum(1 for s in system.students.values() if s['course'] == course_code)
 
-            # Get units in this course that the lecturer teaches
             course_units = []
             for unit_code in taught_units:
                 if unit_code in system.units and system.units[unit_code].get('course') == course_code:
@@ -718,7 +700,6 @@ def dashboard():
                 'unit_count': len(course_units)
             })
 
-        # --- IMPORTANT: Pass students_in_my_units to the template ---
         return render_template('lecturer_dashboard.html',
                                students=students,
                                units=units,
@@ -729,7 +710,7 @@ def dashboard():
                                courses_taught=courses_taught,
                                course_stats=course_stats,
                                student_count=len(students),
-                               students_in_my_units=students_in_my_units)  # <--- Added this
+                               students_in_my_units=students_in_my_units)
 
     else:
         # Admin dashboard
@@ -810,7 +791,7 @@ def admin_add_student():
         else:
             success, msg = system.add_student(reg_no, name, course, password)
             flash(msg, 'success' if success else 'danger')
-        return redirect(url_for('admin_manage_students'))  # Changed to manage page
+        return redirect(url_for('admin_manage_students'))
 
     courses = system.get_course_list()
     return render_template('add_student.html', courses=courses, system=system)
@@ -965,7 +946,6 @@ def admin_view_courses():
 @role_required(['admin'])
 def admin_change_password():
     if request.method == 'POST':
-        # Use .strip() to remove whitespace
         role = request.form.get('role', '').strip()
         username = request.form.get('username', '').strip()
         new_password = request.form.get('new_password', '').strip()
@@ -989,7 +969,6 @@ def admin_change_password():
 @app.route('/admin/add_lecturer', methods=['GET', 'POST'])
 @role_required(['admin'])
 def admin_add_lecturer():
-    # Get all units for the dropdown
     units = system.get_units_list()
 
     if request.method == 'POST':
@@ -1000,7 +979,6 @@ def admin_add_lecturer():
         new_course_code = request.form.get('new_course_code', '').strip().upper()
         new_course_name = request.form.get('new_course_name', '').strip()
 
-        # Validate
         if not full_name or not password:
             flash('Full name and password are required.', 'danger')
             return render_template('admin_add_lecturer.html', units=units, system=system)
@@ -1014,22 +992,17 @@ def admin_add_lecturer():
             flash('Password must be at least 4 characters.', 'danger')
             return render_template('admin_add_lecturer.html', units=units, system=system)
 
-        # Handle new course creation if provided
         if new_course_code and new_course_name:
-            # Check if course already exists
             if new_course_code in system.courses:
                 flash(f'Course "{new_course_code}" already exists. Please use the existing course.', 'warning')
             else:
-                # Add the new course
                 success, msg = system.add_course(new_course_code, new_course_name)
                 if success:
                     flash(f'New course "{new_course_code}" added successfully!', 'success')
-                    # Auto-assign this course
                     existing_course = new_course_code
                 else:
                     flash(f'Failed to add course: {msg}', 'danger')
 
-        # Generate username from full name
         base_username = full_name.lower().replace(' ', '')
         username = base_username
         users = load_users()
@@ -1038,17 +1011,12 @@ def admin_add_lecturer():
             username = f"{base_username}{counter}"
             counter += 1
 
-        # Create the lecturer
         success, msg = create_user(username, password, 'lecturer',
                                    full_name=full_name, taught_units=taught_units)
 
         if success:
             flash(f'✅ Lecturer "{full_name}" created successfully! Username: "{username}"', 'success')
-
-            # If a course was selected/created, link it to the lecturer
             if existing_course and existing_course in system.courses:
-                # The lecturer is linked to units, not directly to courses
-                # Units are already linked to courses, so the lecturer teaches the course through their units
                 flash(f'📚 Lecturer assigned to course: {existing_course}', 'success')
         else:
             flash(msg, 'danger')
@@ -1105,8 +1073,6 @@ def admin_remove_lecturer():
 @app.route('/admin/lecturers/manage', methods=['GET', 'POST'])
 @role_required(['admin'])
 def admin_manage_lecturers():
-    """Combined page to add and view lecturers"""
-    # Get all units for the dropdown
     units = system.get_units_list()
 
     if request.method == 'POST':
@@ -1117,7 +1083,6 @@ def admin_manage_lecturers():
         new_course_code = request.form.get('new_course_code', '').strip().upper()
         new_course_name = request.form.get('new_course_name', '').strip()
 
-        # Validate
         if not full_name or not password:
             flash('Full name and password are required.', 'danger')
             return redirect(url_for('admin_manage_lecturers'))
@@ -1131,7 +1096,6 @@ def admin_manage_lecturers():
             flash('Password must be at least 4 characters.', 'danger')
             return redirect(url_for('admin_manage_lecturers'))
 
-        # Handle new course creation if provided
         if new_course_code and new_course_name:
             if new_course_code in system.courses:
                 flash(f'Course "{new_course_code}" already exists.', 'warning')
@@ -1143,7 +1107,6 @@ def admin_manage_lecturers():
                 else:
                     flash(f'Failed to add course: {msg}', 'danger')
 
-        # Generate username from full name
         base_username = full_name.lower().replace(' ', '')
         username = base_username
         users = load_users()
@@ -1152,7 +1115,6 @@ def admin_manage_lecturers():
             username = f"{base_username}{counter}"
             counter += 1
 
-        # Create the lecturer
         success, msg = create_user(username, password, 'lecturer',
                                    full_name=full_name, taught_units=taught_units)
 
@@ -1165,7 +1127,6 @@ def admin_manage_lecturers():
 
         return redirect(url_for('admin_manage_lecturers'))
 
-    # GET request - show form and lecturer list
     users = load_users()
     lecturers = []
     for username, data in users.items():
@@ -1213,15 +1174,11 @@ def admin_edit_lecturer_units(username):
 @app.route('/lecturer/add_marks', methods=['GET', 'POST'])
 @role_required(['lecturer'])
 def lecturer_add_marks():
-    # Get the logged-in lecturer's username
     lecturer_username = session.get('username')
     users = load_users()
     lecturer_data = users.get(lecturer_username, {})
-
-    # Get units this lecturer teaches
     taught_units = lecturer_data.get('taught_units', [])
 
-    # Get all students (for the dropdown)
     students = []
     for reg, data in system.students.items():
         students.append({
@@ -1230,7 +1187,6 @@ def lecturer_add_marks():
             'course': data['course']
         })
 
-    # Only show units that the lecturer teaches
     units = []
     for code, data in system.units.items():
         if code in taught_units:
@@ -1240,14 +1196,12 @@ def lecturer_add_marks():
                 'code': code
             })
 
-    # For GET request - show the add marks form
     if request.method == 'GET':
         return render_template('add_marks_form.html',
                                students=students,
                                units=units,
                                username=session.get('username'))
 
-    # For POST request - add the marks
     if request.method == 'POST':
         reg_no = request.form.get('student_id', '').strip()
         unit = request.form.get('unit_id', '').strip()
@@ -1258,12 +1212,10 @@ def lecturer_add_marks():
             flash('All fields are required.', 'danger')
             return redirect(url_for('lecturer_add_marks'))
 
-        # Check if lecturer teaches this unit
         if unit not in taught_units:
             flash('You are not authorized to add marks for this unit.', 'danger')
             return redirect(url_for('lecturer_add_marks'))
 
-        # Validate marks
         try:
             marks_value = float(marks)
             if marks_value < 0 or marks_value > 100:
@@ -1277,7 +1229,6 @@ def lecturer_add_marks():
             flash('Invalid marks. Please enter a number.', 'danger')
             return redirect(url_for('lecturer_add_marks'))
 
-        # Add the mark
         success, msg = system.add_mark(reg_no, unit, marks_value)
         flash(msg, 'success' if success else 'danger')
         return redirect(url_for('lecturer_add_marks'))
@@ -1288,31 +1239,23 @@ def lecturer_add_marks():
                            username=session.get('username'))
 
 
-# ---------- FIXED: Standalone Add Marks Route ----------
-
-# ---------- FIXED: Standalone Add Marks Route ----------
-
-# ---------- FIXED: Standalone Add Marks Route ----------
 @app.route('/lecturer/add_marks/<path:reg_no>', methods=['GET', 'POST'])
 @role_required(['lecturer'])
 def add_marks(reg_no):
     if 'username' not in session or session.get('role') != 'lecturer':
         return redirect(url_for('login'))
 
-    # Get the logged-in lecturer's units
     lecturer_username = session.get('username')
     users = load_users()
     lecturer_data = users.get(lecturer_username, {})
     taught_units = lecturer_data.get('taught_units', [])
 
-    # Get student info
     student_data = system.students.get(reg_no, {})
 
     if request.method == 'POST':
         unit_code = request.form.get('unit_code')
         mark = request.form.get('mark')
 
-        # Validate input
         if unit_code and mark:
             if unit_code not in taught_units:
                 flash('You are not authorized to add marks for this unit.', 'danger')
@@ -1321,7 +1264,6 @@ def add_marks(reg_no):
             try:
                 mark_value = int(mark)
                 if 0 <= mark_value <= 100:
-                    # Add mark to system.marks using the helper method
                     success, msg = system.add_mark(reg_no, unit_code, mark_value)
                     flash(msg, 'success' if success else 'danger')
                     return redirect(url_for('dashboard'))
@@ -1332,7 +1274,6 @@ def add_marks(reg_no):
         else:
             flash('Please select a unit and enter a mark.', 'danger')
 
-    # Build a list of units the lecturer teaches (for the dropdown)
     units_for_dropdown = []
     for unit_code in taught_units:
         if unit_code in system.units:
@@ -1346,10 +1287,10 @@ def add_marks(reg_no):
                            reg_no=reg_no,
                            units=units_for_dropdown)
 
+
 @app.route('/lecturer/view_marks')
 @role_required(['lecturer'])
 def lecturer_view_marks():
-    # Get the logged-in lecturer's units
     lecturer_username = session.get('username')
     users = load_users()
     lecturer_data = users.get(lecturer_username, {})
@@ -1360,7 +1301,6 @@ def lecturer_view_marks():
         if reg in system.students:
             student_name = system.students[reg]['name']
             for unit, mark in marks.items():
-                # Only show marks for units they teach
                 if unit in taught_units:
                     safe_reg = reg.replace('/', '_')
                     marks_data.append({
@@ -1378,7 +1318,6 @@ def lecturer_view_marks():
 @app.route('/lecturer/edit_mark/<string:mark_id>', methods=['GET', 'POST'])
 @role_required(['lecturer'])
 def lecturer_edit_mark(mark_id):
-    # Get the logged-in lecturer's units
     lecturer_username = session.get('username')
     users = load_users()
     lecturer_data = users.get(lecturer_username, {})
@@ -1393,7 +1332,6 @@ def lecturer_edit_mark(mark_id):
     unit = parts[-1]
     reg_no = '_'.join(parts[:-1]).replace('_', '/')
 
-    # Check if lecturer teaches this unit
     if unit not in taught_units:
         flash('You are not authorized to edit marks for this unit.', 'danger')
         return redirect(url_for('lecturer_view_marks'))
@@ -1440,7 +1378,6 @@ def view_students():
     role = session.get('role')
 
     if role == 'admin':
-        # Admin sees all students
         students_list = []
         for reg, data in system.students.items():
             gpa = system.calculate_gpa(reg)
@@ -1476,7 +1413,6 @@ def view_students():
 @app.route('/admin/students/manage', methods=['GET', 'POST'])
 @role_required(['admin'])
 def admin_manage_students():
-    """Combined page to add and view students"""
     if request.method == 'POST':
         reg_no = request.form.get('reg_no', '').strip()
         name = request.form.get('name', '').strip()
@@ -1492,10 +1428,8 @@ def admin_manage_students():
             flash(msg, 'success' if success else 'danger')
         return redirect(url_for('admin_manage_students'))
 
-    # GET request - show form and student list
     courses = system.get_course_list()
 
-    # Get all students with their details
     students_list = []
     for reg, data in system.students.items():
         gpa = system.calculate_gpa(reg)
@@ -1569,6 +1503,7 @@ def student_change_password():
                 flash('Current password is incorrect.', 'danger')
 
     return render_template('change_password.html')
+
 
 # ---------- Student routes ----------
 @app.route('/student/view_marks')
