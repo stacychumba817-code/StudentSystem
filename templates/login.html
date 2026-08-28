@@ -3,285 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Academic Portal - Login</title>
+    <title>Login</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* WHITE BACKGROUND */
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f5f5f5;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Navbar Styles */
-        .navbar {
-            background: #1a202c;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar .brand {
-            font-size: 20px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        /* Login Container */
-        .container {
-            flex: 1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            height: 100vh;
+            margin: 0;
         }
 
-        /* Flash Messages */
-        .flash-messages {
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .alert {
-            padding: 12px 20px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .alert-success {
-            background: #c6f6d5;
-            color: #22543d;
-            border: 1px solid #9ae6b4;
-        }
-
-        .alert-danger {
-            background: #fed7d7;
-            color: #9b2c2c;
-            border: 1px solid #feb2b2;
-        }
-
-        .alert-warning {
-            background: #feebc8;
-            color: #744210;
-            border: 1px solid #fbd38d;
-        }
-
-        /* Card Styles */
-        .card {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            overflow: hidden;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
+        /* THE CARD */
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            width: 380px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
             text-align: center;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
-        .card-header h1 {
+        /* HEADER ICON & TITLE */
+        .header-icon {
+            font-size: 40px;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: #333333;
             margin: 0;
             font-size: 24px;
         }
 
-        .card-body {
-            padding: 30px;
+        p.subtitle {
+            color: #888888;
+            font-size: 14px;
+            margin-top: 5px;
+            margin-bottom: 25px;
         }
 
+        /* FORM INPUTS */
         .form-group {
+            text-align: left;
             margin-bottom: 20px;
         }
 
         label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
+            color: #555;
             font-size: 14px;
+            font-weight: 500;
         }
 
-        /* Unified Input Styles */
         input[type="text"],
-        .password-wrapper input[type="password"],
-        .password-wrapper input[type="text"] {
+        input[type="password"] {
             width: 100%;
             padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 5px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-sizing: border-box;
             font-size: 14px;
-            background-color: #f7fafc;
+            background-color: #f9fafb;
             transition: border-color 0.3s;
-            outline: none;
         }
 
         input[type="text"]:focus,
-        .password-wrapper input[type="password"]:focus,
-        .password-wrapper input[type="text"]:focus {
-            border-color: #667eea;
-            background-color: white;
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #4299e1;
+            background-color: #ffffff;
         }
 
-        /* Password Wrapper Styles */
-        .password-wrapper {
-            position: relative;
-        }
-
-        .password-wrapper input[type="password"],
-        .password-wrapper input[type="text"] {
-            padding-right: 45px; /* Add space for the eye button */
-        }
-
-        .toggle-password {
-            position: absolute;
-            top: 50%;
-            right: 12px;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            color: #718096;
-            padding: 5px;
-            transition: color 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-        }
-
-        .toggle-password:hover {
-            color: #333;
-        }
-
-        /* Button Styles */
-        .btn {
+        /* LOGIN BUTTON */
+        .btn-submit {
             width: 100%;
             padding: 12px;
+            background-color: #4299e1;
+            color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            cursor: pointer;
             font-size: 16px;
             font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-            display: block;
-            text-align: center;
-            text-decoration: none;
-            background: #3182ce;
-            color: white;
+            margin-top: 10px;
+            transition: background-color 0.3s;
         }
 
-        .btn:hover {
-            background: #2b6cb0;
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .navbar {
-                padding: 15px 20px;
-            }
-
-            .card-body {
-                padding: 20px;
-            }
+        .btn-submit:hover {
+            background-color: #3182ce;
         }
     </style>
 </head>
 <body>
-    <!-- Top Navbar -->
-    <div class="navbar">
-        <div class="brand">🏛️ University Academic Portal</div>
-        <a href="#">↪️ Login</a>
-    </div>
 
     <div class="container">
-        <div style="width: 100%; max-width: 400px;">
-            <!-- Flash Messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="flash-messages">
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">
-                                {% if category == 'success' %}✅
-                                {% elif category == 'danger' %}❌
-                                {% elif category == 'warning' %}⚠️
-                                {% else %}ℹ️
-                                {% endif %}
-                                {{ message }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
+        <div class="header-icon">🏛️</div>
+        <h2>University Portal</h2>
+        <p class="subtitle">Login to your account</p>
 
-            <div class="card">
-                <div class="card-header">
-                    <h1>Login</h1>
-                </div>
-                <div class="card-body">
-                    <form method="POST">
-                        <!-- Username -->
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" id="username" name="username" placeholder="Enter your username" required>
-                        </div>
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul style="list-style-type: none; padding: 0; color: #e53e3e; margin-bottom: 15px;">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
 
-                        <!-- Password -->
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <div class="password-wrapper">
-                                <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                                <button type="button" class="toggle-password" onclick="togglePassword('password', this)">👁️</button>
-                            </div>
-                        </div>
-
-                        <!-- Login Button -->
-                        <button type="submit" class="btn">Login</button>
-                    </form>
-                </div>
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
             </div>
-        </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Log In</button>
+        </form>
     </div>
 
-    <!-- JavaScript to toggle password visibility -->
-    <script>
-        function togglePassword(fieldId, button) {
-            const field = document.getElementById(fieldId);
-            if (field.type === "password") {
-                field.type = "text";
-                button.textContent = "🙈"; // Change to closed eye
-            } else {
-                field.type = "password";
-                button.textContent = "👁️"; // Change back to open eye
-            }
-        }
-    </script>
 </body>
 </html>

@@ -123,16 +123,22 @@
             margin-bottom: 30px;
         }
 
+        /* ALL QUICK ACTION BUTTONS - WHITE BACKGROUND */
         .action-btn {
-            background: white;
+            background: #ffffff !important;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
             text-decoration: none;
-            color: #333;
+            color: #333 !important;
             transition: all 0.3s;
-            border: 2px solid transparent;
+            border: 2px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 120px;
         }
 
         .action-btn:hover {
@@ -150,106 +156,40 @@
         .action-btn .label {
             font-weight: bold;
             font-size: 16px;
+            display: block;
+            color: #333;
         }
 
         .action-btn .desc {
             color: #666;
             font-size: 14px;
             margin-top: 5px;
+            display: block;
         }
 
-        /* Button Styles */
-        .btn-primary {
-            background: #667eea;
-            color: white !important;
-            border-color: #667eea;
+        /* Action list chips - now with white background and dark text */
+        .action-btn .action-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px 12px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #2d3748;
+            background: #f7fafc;
+            padding: 6px 12px;
+            border-radius: 20px;
+            width: 100%;
+            border: 1px solid #e2e8f0;
         }
 
-        .btn-primary:hover {
-            background: #5a67d8;
-            border-color: #5a67d8;
-        }
-
-        .btn-success {
-            background: #48bb78;
-            color: white !important;
-            border-color: #48bb78;
-        }
-
-        .btn-success:hover {
-            background: #38a169;
-            border-color: #38a169;
-        }
-
-        .btn-warning {
-            background: #ed8936;
-            color: white !important;
-            border-color: #ed8936;
-        }
-
-        .btn-warning:hover {
-            background: #dd6b20;
-            border-color: #dd6b20;
-        }
-
-        .btn-danger {
-            background: #fc8181;
-            color: white !important;
-            border-color: #fc8181;
-        }
-
-        .btn-danger:hover {
-            background: #f56565;
-            border-color: #f56565;
-        }
-
-        .btn-info {
-            background: #63b3ed;
-            color: white !important;
-            border-color: #63b3ed;
-        }
-
-        .btn-info:hover {
-            background: #4299e1;
-            border-color: #4299e1;
-        }
-
-        .btn-purple {
-            background: #9f7aea;
-            color: white !important;
-            border-color: #9f7aea;
-        }
-
-        .btn-purple:hover {
-            background: #805ad5;
-            border-color: #805ad5;
-        }
-
-        /* Blue buttons for Manage */
-        .btn-manage-students {
-            background: #3182ce;
-            color: white !important;
-            border-color: #3182ce;
-        }
-
-        .btn-manage-students:hover {
-            background: #2b6cb0;
-            border-color: #2b6cb0;
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(49, 130, 206, 0.3);
-        }
-
-        .btn-manage-lecturers {
-            background: #2b6cb0;
-            color: white !important;
-            border-color: #2b6cb0;
-        }
-
-        .btn-manage-lecturers:hover {
-            background: #1a4f8b;
-            border-color: #1a4f8b;
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(43, 108, 176, 0.3);
+        .action-btn .action-list span {
+            background: #edf2f7;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            white-space: nowrap;
+            color: #2d3748;
         }
 
         .section {
@@ -386,6 +326,17 @@
             flex-wrap: wrap;
         }
 
+        /* Download buttons also white */
+        .download-section .action-btn {
+            background: #ffffff !important;
+            color: #333 !important;
+            border-color: #e2e8f0;
+        }
+
+        .download-section .action-btn:hover {
+            border-color: #667eea;
+        }
+
         @media (max-width: 768px) {
             .header {
                 flex-direction: column;
@@ -489,53 +440,67 @@
             </div>
         </div>
 
-        <!-- Quick Actions -->
+        <!-- Quick Actions - ALL WHITE BUTTONS -->
         <h2 style="margin-top: 0; color: #333;">⚡ Quick Actions</h2>
         <div class="quick-actions">
-            <!-- Manage Students - BLUE button -->
-            <a href="{{ url_for('admin_manage_students') }}" class="action-btn btn-manage-students">
+            <!-- Manage Students -->
+            <a href="{{ url_for('admin_manage_students') }}" class="action-btn">
                 <span class="icon">👨‍🎓</span>
                 <span class="label">Manage Students</span>
                 <span class="desc">Add, view, and manage all students</span>
+                <div class="action-list">
+                    <span>➕ Add</span>
+                    <span>👁️ View</span>
+                    <span>✏️ Edit</span>
+                    <span>🗑️ Delete</span>
+                    <span>📊 Results</span>
+                </div>
             </a>
 
-            <!-- Manage Lecturers - BLUE button (Darker shade) -->
-            <a href="{{ url_for('admin_manage_lecturers') }}" class="action-btn btn-manage-lecturers">
+            <!-- Manage Lecturers -->
+            <a href="{{ url_for('admin_manage_lecturers') }}" class="action-btn">
                 <span class="icon">👨‍🏫</span>
                 <span class="label">Manage Lecturers</span>
                 <span class="desc">Add, view, and manage all lecturers</span>
+                <div class="action-list">
+                    <span>➕ Add</span>
+                    <span>👁️ View</span>
+                    <span>✏️ Edit</span>
+                    <span>🗑️ Delete</span>
+                    <span>📋 Assign Units</span>
+                </div>
             </a>
 
             <!-- Add Course -->
-            <a href="{{ url_for('admin_add_course') }}" class="action-btn btn-warning">
+            <a href="{{ url_for('admin_add_course') }}" class="action-btn">
                 <span class="icon">📚</span>
                 <span class="label">Add Course</span>
                 <span class="desc">Create a new course</span>
             </a>
 
             <!-- Add Unit -->
-            <a href="{{ url_for('admin_add_unit') }}" class="action-btn btn-purple">
+            <a href="{{ url_for('admin_add_unit') }}" class="action-btn">
                 <span class="icon">📖</span>
                 <span class="label">Add Unit</span>
                 <span class="desc">Create a new unit</span>
             </a>
 
             <!-- View Courses -->
-            <a href="{{ url_for('admin_view_courses') }}" class="action-btn" style="border-color: #48bb78;">
+            <a href="{{ url_for('admin_view_courses') }}" class="action-btn">
                 <span class="icon">📚</span>
                 <span class="label">View Courses</span>
                 <span class="desc">See all courses</span>
             </a>
 
             <!-- View Units -->
-            <a href="{{ url_for('admin_view_units') }}" class="action-btn" style="border-color: #9f7aea;">
+            <a href="{{ url_for('admin_view_units') }}" class="action-btn">
                 <span class="icon">📖</span>
                 <span class="label">View Units</span>
                 <span class="desc">See all units</span>
             </a>
 
             <!-- Change Password -->
-            <a href="{{ url_for('admin_change_password') }}" class="action-btn" style="border-color: #fc8181;">
+            <a href="{{ url_for('admin_change_password') }}" class="action-btn">
                 <span class="icon">🔑</span>
                 <span class="label">Change Password</span>
                 <span class="desc">Update user passwords</span>
@@ -600,7 +565,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- FIXED: Replaced |slice(5) with loop.index <= 5 -->
                             {% for lecturer in lecturers %}
                                 {% if loop.index <= 5 %}
                                 <tr>
@@ -638,12 +602,12 @@
             <h2>📥 Download All Results</h2>
             <div class="download-section">
                 <a href="{{ url_for('student_download_all', format='pdf') }}"
-                   class="action-btn btn-primary" style="padding: 15px 30px; flex: 1; max-width: 300px;">
+                   class="action-btn" style="padding: 15px 30px; flex: 1; max-width: 300px;">
                     <span class="icon">📄</span>
                     <span class="label">Download PDF</span>
                 </a>
                 <a href="{{ url_for('student_download_all', format='text') }}"
-                   class="action-btn btn-warning" style="padding: 15px 30px; flex: 1; max-width: 300px;">
+                   class="action-btn" style="padding: 15px 30px; flex: 1; max-width: 300px;">
                     <span class="icon">📝</span>
                     <span class="label">Download TXT</span>
                 </a>
