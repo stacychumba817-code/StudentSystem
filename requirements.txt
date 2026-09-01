@@ -1,3 +1,4 @@
-flask
-gunicorn
-reportlab
+Flask==2.3.3
+Werkzeug==2.3.7
+Flask-WTF==1.1.1
+reportlab==4.0.4
